@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: stackgres-operator
+    group: stackgres.io
+    version: 1.4.0
+  name: stackgres-operator
+  namespace: syn-stackgres-operator
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: stackgres-operator
+      group: stackgres.io
+  template:
+    metadata:
+      labels:
+        app: stackgres-operator
+        group: stackgres.io
+    spec:
+      containers:
+        - env:
+            - name: OPERATOR_NAME
+              value: stackgres-operator
+            - name: OPERATOR_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OPERATOR_IMAGE_VERSION
+              value: 1.4.0
+            - name: PROMETHEUS_AUTOBIND
+              value: 'true'
+            - name: OPERATOR_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: AUTHENTICATION_SECRET_NAME
+              value: stackgres-restapi
+            - name: SG_CONTAINER_REGISTRY
+              value: docker.io
+            - name: SG_IMAGE_PULL_POLICY
+              value: IfNotPresent
+            - name: EXTENSIONS_REPOSITORY_URLS
+              value: https://extensions.stackgres.io/postgres/repository
+          image: stackgres/operator:1.4.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /q/health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: stackgres-operator
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /q/health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 2
+          volumeMounts:
+            - mountPath: /etc/operator/certs
+              name: operator-certs
+              readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      serviceAccountName: stackgres-operator
+      volumes:
+        - name: operator-certs
+          secret:
+            items:
+              - key: tls.key
+                path: root.key
+              - key: tls.crt
+                path: server.crt
+            optional: false
+            secretName: stackgres-operator-certs

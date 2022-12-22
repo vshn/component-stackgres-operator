@@ -1,5 +1,11 @@
 parameters:
   kapitan:
+    dependencies:
+      - type: helm
+        output_path: dependencies/stackgres-operator/helmcharts/stackgres-operator/${stackgres_operator:charts:stackgres-operator}
+        source: https://stackgres.io/downloads/stackgres-k8s/stackgres/helm/
+        version: ${stackgres_operator:charts:stackgres-operator}
+        chart_name: stackgres-operator
     compile:
       - input_paths:
           - ${_base_directory}/component/app.jsonnet
@@ -9,3 +15,11 @@ parameters:
           - ${_base_directory}/component/main.jsonnet
         input_type: jsonnet
         output_path: stackgres-operator/
+      - output_path: stackgres-operator/01_helmchart
+        input_type: helm
+        input_paths:
+          - dependencies/stackgres-operator/helmcharts/stackgres-operator/${stackgres_operator:charts:stackgres-operator}/
+        helm_values: ${stackgres_operator:helmValues}
+        helm_params:
+          name: stackgres-operator
+          namespace: ${stackgres_operator:namespace}

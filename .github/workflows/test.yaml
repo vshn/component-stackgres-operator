@@ -48,6 +48,7 @@ jobs:
       matrix:
         instance:
           - defaults
+          - ui_svc_lb
     defaults:
       run:
         working-directory: ${{ env.COMPONENT_NAME }}

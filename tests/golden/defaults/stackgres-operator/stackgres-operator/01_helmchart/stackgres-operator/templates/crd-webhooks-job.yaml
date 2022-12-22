@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: '30'
+  labels:
+    app: stackgres-operator
+    job: configure-crd-webhooks
+    scope: init
+  name: stackgres-operator-conversion-webhooks
+  namespace: syn-stackgres-operator
+spec:
+  template:
+    metadata:
+      labels:
+        app: stackgres-operator
+        job: configure-crd-webhooks
+        scope: init
+    spec:
+      containers:
+        - env:
+            - name: OPERATOR_NAME
+              value: stackgres-operator
+            - name: OPERATOR_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OPERATOR_CERTIFICATE_SECRET_NAME
+              value: stackgres-operator-certs
+            - name: CRD_UPGRADE
+              value: 'false'
+            - name: CONVERSION_WEBHOOKS
+              value: 'true'
+          image: stackgres/jobs:1.4.0
+          imagePullPolicy: IfNotPresent
+          name: conversion-webhooks
+      restartPolicy: OnFailure
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      serviceAccountName: stackgres-operator-init
+      terminationGracePeriodSeconds: 0

@@ -2,3 +2,8 @@ parameters:
   stackgres_operator:
     =_metadata: {}
     namespace: syn-stackgres-operator
+    charts:
+      stackgres-operator: 1.4.0    
+    helmValues:
+      deploy:
+        restapi: false

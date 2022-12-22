@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: '20'
+  labels:
+    app: stackgres-operator
+    job: upgrade-crd
+    scope: init
+  name: stackgres-operator-crd-upgrade
+  namespace: syn-stackgres-operator
+spec:
+  template:
+    metadata:
+      labels:
+        app: stackgres-operator
+        job: upgrade-crd
+        scope: init
+    spec:
+      containers:
+        - env:
+            - name: OPERATOR_NAME
+              value: stackgres-operator
+            - name: OPERATOR_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: CRD_UPGRADE
+              value: 'true'
+            - name: CONVERSION_WEBHOOKS
+              value: 'false'
+          image: stackgres/jobs:1.4.0
+          imagePullPolicy: IfNotPresent
+          name: crd-upgrade
+      restartPolicy: OnFailure
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      serviceAccountName: stackgres-operator-init
+      terminationGracePeriodSeconds: 0
