@@ -1,0 +1,5 @@
+= stackgres-operator
+
+stackgres-operator is a Commodore component to manage stackgres-operator.
+
+See the xref:references/parameters.adoc[parameters] reference for further details.

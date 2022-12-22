@@ -1,0 +1,25 @@
+{
+  "template": "https://github.com/projectsyn/commodore-component-template.git",
+  "commit": "e52ac0e3d4638248c026a2f1e000bc83f7ac83c5",
+  "checkout": "main",
+  "context": {
+    "cookiecutter": {
+      "name": "stackgres-operator",
+      "slug": "stackgres-operator",
+      "parameter_key": "stackgres_operator",
+      "test_cases": "defaults",
+      "add_lib": "n",
+      "add_pp": "n",
+      "add_golden": "y",
+      "add_matrix": "y",
+      "add_go_unit": "n",
+      "copyright_holder": "VSHN AG <info@vshn.ch>",
+      "copyright_year": "2022",
+      "github_owner": "projectsyn",
+      "github_name": "component-stackgres-operator",
+      "github_url": "https://github.com/projectsyn/component-stackgres-operator",
+      "_template": "https://github.com/projectsyn/commodore-component-template.git"
+    }
+  },
+  "directory": null
+}

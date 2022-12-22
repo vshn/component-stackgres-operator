@@ -1,0 +1,4 @@
+parameters:
+  stackgres_operator:
+    =_metadata: {}
+    namespace: syn-stackgres-operator
