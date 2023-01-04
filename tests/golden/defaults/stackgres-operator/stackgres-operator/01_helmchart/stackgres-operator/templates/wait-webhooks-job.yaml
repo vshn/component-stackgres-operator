@@ -23,23 +23,14 @@ spec:
         - command:
             - /bin/bash
             - -ecx
-            - 'kubectl set env -n ''syn-stackgres-operator'' ''deployment/stackgres-operator''
-              DISABLE_RECONCILIATION=true
-
-              kubectl scale --timeout 1h --replicas 1 -n ''syn-stackgres-operator''
-              ''deployment/stackgres-operator''
-
-              kubectl rollout status -n ''syn-stackgres-operator'' ''deployment/stackgres-operator''
-
-              '
-          image: ongres/kubectl:v1.24.3-build-6.16
+            - |
+              kubectl set env -n 'syn-stackgres-operator' 'deployment/stackgres-operator' DISABLE_RECONCILIATION=true
+              kubectl scale --timeout 1h --replicas 1 -n 'syn-stackgres-operator' 'deployment/stackgres-operator'
+              kubectl rollout status -n 'syn-stackgres-operator' 'deployment/stackgres-operator'
+          image: docker.io/ongres/kubectl:v1.24.3-build-6.16
           imagePullPolicy: IfNotPresent
           name: stackgres-operator-wait-webhooks
       restartPolicy: OnFailure
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
+      securityContext: null
       serviceAccountName: stackgres-operator-init
       terminationGracePeriodSeconds: 0

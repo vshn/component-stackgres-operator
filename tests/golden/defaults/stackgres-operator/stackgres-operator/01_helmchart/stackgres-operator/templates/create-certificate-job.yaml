@@ -249,14 +249,10 @@ spec:
               data:\n  tls.key: ${WEB_KEY}\n  tls.crt: ${WEB_CRT}\n  jwt-rsa.key:\
               \ ${WEB_KEY}\n  jwt-rsa.pub: ${WEB_PUB}\nEOF\n\nkubectl delete -f /tmp/web-certificate-secret.yaml\
               \ --ignore-not-found\nkubectl apply -f /tmp/web-certificate-secret.yaml\n"
-          image: ongres/kubectl:v1.24.3-build-6.16
+          image: docker.io/ongres/kubectl:v1.24.3-build-6.16
           imagePullPolicy: IfNotPresent
           name: create-certificate
       restartPolicy: OnFailure
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
+      securityContext: null
       serviceAccountName: stackgres-operator-init
       terminationGracePeriodSeconds: 0

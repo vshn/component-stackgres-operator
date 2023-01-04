@@ -32,6 +32,8 @@ spec:
               value: 1.4.0
             - name: PROMETHEUS_AUTOBIND
               value: 'true'
+            - name: USE_ARBITRARY_USER
+              value: 'true'
             - name: OPERATOR_IP
               valueFrom:
                 fieldRef:
@@ -74,11 +76,7 @@ spec:
             - mountPath: /etc/operator/certs
               name: operator-certs
               readOnly: true
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
+      securityContext: null
       serviceAccountName: stackgres-operator
       volumes:
         - name: operator-certs

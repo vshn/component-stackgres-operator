@@ -36,10 +36,6 @@ spec:
           imagePullPolicy: IfNotPresent
           name: crd-upgrade
       restartPolicy: OnFailure
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
+      securityContext: null
       serviceAccountName: stackgres-operator-init
       terminationGracePeriodSeconds: 0

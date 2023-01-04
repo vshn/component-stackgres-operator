@@ -33,13 +33,8 @@ spec:
           image: stackgres/jobs:1.4.0
           imagePullPolicy: IfNotPresent
           name: stackgres-jobs
-          securityContext:
-            runAsGroup: 1000
-            runAsNonRoot: true
-            runAsUser: 1000
+          securityContext: null
       restartPolicy: OnFailure
-      securityContext:
-        fsGroup: 1000
-        runAsNonRoot: true
+      securityContext: null
       serviceAccountName: stackgres-operator-init
       terminationGracePeriodSeconds: 0

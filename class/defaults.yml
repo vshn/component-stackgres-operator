@@ -3,7 +3,14 @@ parameters:
     =_metadata: {}
     namespace: syn-stackgres-operator
     charts:
-      stackgres-operator: 1.4.0    
+      stackgres-operator:
+        source: "https://stackgres.io/downloads/stackgres-k8s/stackgres/helm/"
+        version: "1.4.0"
     helmValues:
       deploy:
         restapi: false
+    images:
+      kubectl:
+        repository: docker.io
+        image: ongres/kubectl
+        tag: v1.24.3-build-6.16

@@ -23,17 +23,16 @@ spec:
         - command:
             - /bin/bash
             - -ecx
-            - "kubectl get crd -o name | grep '\\.stackgres\\.io$' \\\n  | while read\
-              \ -r CRD\n    do\n      kubectl annotate --overwrite \"$CRD\" stackgres.io/operatorVersion=1.4.0\n\
-              \    done\n"
-          image: ongres/kubectl:v1.24.3-build-6.16
+            - |
+              kubectl get crd -o name | grep '\.stackgres\.io$' \
+                | while read -r CRD
+                  do
+                    kubectl annotate --overwrite "$CRD" stackgres.io/operatorVersion=1.4.0
+                  done
+          image: docker.io/ongres/kubectl:v1.24.3-build-6.16
           imagePullPolicy: IfNotPresent
           name: set-crd-version
       restartPolicy: OnFailure
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
+      securityContext: null
       serviceAccountName: stackgres-operator-init
       terminationGracePeriodSeconds: 0
