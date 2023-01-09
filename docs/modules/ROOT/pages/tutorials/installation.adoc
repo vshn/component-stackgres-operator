@@ -1,0 +1,28 @@
+= Installation
+
+In this short guide we're going to install one or multiple instances of Postgres.
+
+StackGres is operated via CRDs and the main CRD that drives Postgres cluster creation is called `SGCluster`.
+
+Once the StackGres Operator is deployed, we can create a `SGCluster` applying this simple example:
+
+```
+apiVersion: stackgres.io/v1
+kind: SGCluster
+metadata:
+  name: stackgres-simple
+  namespace: syn-stackgres-operator
+spec:
+  instances: 1
+  postgres:
+    version: 'latest'
+  pods:
+    persistentVolume:
+      size: '5Gi'
+```
+
+This will create a cluster using latest available PostgreSQL version with 1 node with a disk of 5Gi using the default storage class and a set of default configurations for PostgreSQL, connection pooling and resource profile.
+
+For more details on how to create a simple cluster: https://stackgres.io/doc/1.1/tutorial/simple-cluster/#cluster-creation[stackgres cluster creation]
+
+To create a more advanced cluster: https://stackgres.io/doc/1.1/tutorial/complete-cluster/create-cluster/[stackgres advanced cluster creation]
