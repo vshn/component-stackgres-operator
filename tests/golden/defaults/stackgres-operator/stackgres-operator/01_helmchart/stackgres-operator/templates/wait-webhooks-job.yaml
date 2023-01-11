@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: '40'
+  labels:
+    app: stackgres-operator
+    job: wait-webhooks
+    scope: init
+  name: stackgres-operator-wait-webhooks
+  namespace: syn-stackgres-operator
+spec:
+  template:
+    metadata:
+      labels:
+        app: stackgres-operator
+        job: wait-webhooks
+        scope: init
+    spec:
+      containers:
+        - command:
+            - /bin/bash
+            - -ecx
+            - |
+              kubectl set env -n 'syn-stackgres-operator' 'deployment/stackgres-operator' DISABLE_RECONCILIATION=true
+              kubectl scale --timeout 1h --replicas 1 -n 'syn-stackgres-operator' 'deployment/stackgres-operator'
+              kubectl rollout status -n 'syn-stackgres-operator' 'deployment/stackgres-operator'
+          image: docker.io/ongres/kubectl:v1.24.3-build-6.16
+          imagePullPolicy: IfNotPresent
+          name: stackgres-operator-wait-webhooks
+      restartPolicy: OnFailure
+      securityContext: null
+      serviceAccountName: stackgres-operator-init
+      terminationGracePeriodSeconds: 0

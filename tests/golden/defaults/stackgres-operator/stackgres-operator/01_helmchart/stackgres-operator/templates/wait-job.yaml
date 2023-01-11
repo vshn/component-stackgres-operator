@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: '100'
+  labels:
+    app: stackgres-operator
+    job: wait
+    scope: cleanup
+  name: stackgres-operator-wait
+  namespace: syn-stackgres-operator
+spec:
+  template:
+    metadata:
+      labels:
+        app: stackgres-operator
+        job: wait
+        scope: cleanup
+    spec:
+      containers:
+        - command:
+            - /bin/bash
+            - -ecx
+            - |
+              kubectl set env -n 'syn-stackgres-operator' 'deployment/stackgres-operator' DISABLE_RECONCILIATION-
+              kubectl scale --timeout 1h --replicas 1 -n 'syn-stackgres-operator' 'deployment/stackgres-operator'
+              kubectl rollout status -n 'syn-stackgres-operator' 'deployment/stackgres-operator'
+          image: docker.io/ongres/kubectl:v1.24.3-build-6.16
+          imagePullPolicy: IfNotPresent
+          name: stackgres-operator-wait
+      restartPolicy: OnFailure
+      securityContext: null
+      serviceAccountName: stackgres-operator-init
+      terminationGracePeriodSeconds: 0

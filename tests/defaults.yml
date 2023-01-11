@@ -1,3 +1,9 @@
 # Overwrite parameters here
 
-# parameters: {...}
+parameters:
+  stackgres_operator:
+    images:
+      kubectl:
+        repository: docker.io
+        image: ongres/kubectl
+        tag: v1.24.3-build-6.16

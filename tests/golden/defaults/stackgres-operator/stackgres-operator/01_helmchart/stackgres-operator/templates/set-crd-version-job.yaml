@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: '60'
+  labels:
+    app: stackgres-operator-set-crd-version
+    job: set-crd-version
+    scope: init
+  name: stackgres-operator-set-crd-version
+  namespace: syn-stackgres-operator
+spec:
+  template:
+    metadata:
+      labels:
+        app: stackgres-operator-set-crd-version
+        job: set-crd-version
+        scope: init
+    spec:
+      containers:
+        - command:
+            - /bin/bash
+            - -ecx
+            - |
+              kubectl get crd -o name | grep '\.stackgres\.io$' \
+                | while read -r CRD
+                  do
+                    kubectl annotate --overwrite "$CRD" stackgres.io/operatorVersion=1.4.0
+                  done
+          image: docker.io/ongres/kubectl:v1.24.3-build-6.16
+          imagePullPolicy: IfNotPresent
+          name: set-crd-version
+      restartPolicy: OnFailure
+      securityContext: null
+      serviceAccountName: stackgres-operator-init
+      terminationGracePeriodSeconds: 0

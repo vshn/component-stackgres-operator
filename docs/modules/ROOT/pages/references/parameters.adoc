@@ -10,10 +10,25 @@ default:: `syn-stackgres-operator`
 
 The namespace in which to deploy this component.
 
+== `helmValues`
+
+[horizontal]
+type:: dict
+default:: `{}`
+
+List of Helm values to pass to the Helm chart.
+For a list of supported values see: https://stackgres.io/doc/latest/install/operator/parameters/[stackgres operator paramaters].
+
 
 == Example
 
 [source,yaml]
 ----
-namespace: example-namespace
+namespace: my-stackgres-operator
+helmValues:
+  deploy:
+    restapi: true
+  adminui:
+    service:
+      type: LoadBalancer
 ----

@@ -1,0 +1,258 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: '10'
+  labels:
+    app: stackgres-operator-create-certificate
+    job: create-certificate
+    scope: init
+  name: stackgres-operator-create-certificate
+  namespace: syn-stackgres-operator
+spec:
+  template:
+    metadata:
+      labels:
+        app: stackgres-operator-create-certificate
+        job: create-certificate
+        scope: init
+    spec:
+      containers:
+        - command:
+            - /bin/bash
+            - -ecx
+            - "kubectl delete csr --ignore-not-found 'stackgres-operator'\ncat <<\
+              \ EOF > /tmp/csr.conf\n[req]\nreq_extensions = v3_req\ndistinguished_name\
+              \ = req_distinguished_name\n[req_distinguished_name]\n[ v3_req ]\nbasicConstraints\
+              \ = CA:FALSE\nkeyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
+              extendedKeyUsage = serverAuth\nsubjectAltName = @alt_names\n[alt_names]\n\
+              DNS.1 = stackgres-operator\nDNS.2 = stackgres-operator.syn-stackgres-operator\n\
+              DNS.3 = stackgres-operator.syn-stackgres-operator.svc\nDNS.4 = stackgres-operator.syn-stackgres-operator.svc.cluster.local\n\
+              EOF\n\nK8S_VERSION=\"$(kubectl get node --template '{{ (index .items\
+              \ 0).status.nodeInfo.kubeletVersion }}')\"\nIS_EKS=\"$(printf %s \"\
+              $K8S_VERSION\" | grep -q -eks- && echo true || echo false)\"\nK8S_VERSION=\"\
+              ${K8S_VERSION#v}\"\nK8S_VERSION=\"${K8S_VERSION%-*}\"\n\nif [ \"$(echo\
+              \ \"$K8S_VERSION\" | tr . '\\n' \\\n    | while read NUMBER; do printf\
+              \ '%05d' \"$NUMBER\"; done)\" \\\n  -ge \"$(echo \"1.22.0\" | tr . '\\\
+              n' \\\n    | while read NUMBER; do printf '%05d' \"$NUMBER\"; done)\"\
+              \ ]\nthen\n  openssl req -new -nodes -text -keyout /tmp/root.key \\\n\
+              \      -subj \"/CN=system:node:stackgres-operator.syn-stackgres-operator;/O=system:nodes\"\
+              \ \\\n      -out /tmp/server.csr \\\n      -config /tmp/csr.conf\nelse\n\
+              \  openssl req -new -nodes -text -keyout /tmp/root.key \\\n      -subj\
+              \ \"/CN=stackgres-operator.syn-stackgres-operator\" \\\n      -out /tmp/server.csr\
+              \ \\\n      -config /tmp/csr.conf\nfi\nopenssl rsa -in /tmp/root.key\
+              \ -pubout -out /tmp/root.pem\n\ncat << EOF | kubectl create -f -\n$(\n\
+              if [ \"$(echo \"$K8S_VERSION\" | tr . '\\n' \\\n    | while read NUMBER;\
+              \ do printf '%05d' \"$NUMBER\"; done)\" \\\n  -ge \"$(echo \"1.22.0\"\
+              \ | tr . '\\n' \\\n    | while read NUMBER; do printf '%05d' \"$NUMBER\"\
+              ; done)\" ]\nthen\n  echo \"apiVersion: certificates.k8s.io/v1\"\nelse\n\
+              \  echo \"apiVersion: certificates.k8s.io/v1beta1\"\nfi\n)\nkind: CertificateSigningRequest\n\
+              metadata:\n  name: stackgres-operator\nspec:\n  request: \"$(cat /tmp/server.csr\
+              \ | base64 | tr -d '\\n')\"\n  usages:\n  - digital signature\n  - key\
+              \ encipherment\n  - server auth\n$(\nif [ \"$(echo \"$K8S_VERSION\"\
+              \ | tr . '\\n' \\\n    | while read NUMBER; do printf '%05d' \"$NUMBER\"\
+              ; done)\" \\\n  -ge \"$(echo \"1.22.0\" | tr . '\\n' \\\n    | while\
+              \ read NUMBER; do printf '%05d' \"$NUMBER\"; done)\" ]\nthen\n  if \"\
+              $IS_EKS\"\n  then\n    echo \"  signerName: beta.eks.amazonaws.com/app-serving\"\
+              \n  else\n    echo \"  signerName: kubernetes.io/kubelet-serving\"\n\
+              \  fi\nfi\n)\nEOF\n\nif ! kubectl get csr 'stackgres-operator' -o yaml|grep\
+              \ -q '^    type: Approved$'\nthen\n  kubectl certificate approve 'stackgres-operator'\n\
+              \  echo -n \"Waiting for CSR approval...\"\n  until kubectl get csr\
+              \ 'stackgres-operator' -o yaml|grep -q '^    type: Approved$'\n  do\n\
+              \    echo -n .\n    sleep 2\n  done\n  echo \"approved\"\nfi\necho -n\
+              \ \"Waiting for CSR certificate generation...\"\nuntil kubectl get csr\
+              \ 'stackgres-operator' \\\n  --template '{{ if .status }}{{ if .status.certificate\
+              \ }}true{{ end }}{{ end }}' \\\n  | grep -q '^true$'\ndo\n  echo -n\
+              \ .\n  sleep 2\ndone\necho \"certificate generated\"\n\nKEY=\"$(cat\
+              \ /tmp/root.key | base64 | tr -d '\\n')\"\nPUB=\"$(cat /tmp/root.pem\
+              \ | base64 | tr -d '\\n')\"\nCRT=\"$(kubectl get csr 'stackgres-operator'\
+              \ --template '{{ .status.certificate }}' | tr -d '\\n')\"\n\nif [ -z\
+              \ \"$CRT\" ]\nthen\n  echo \"Certificate not found in CSR!\"\n  exit\
+              \ 1\nfi\ncat << EOF > /tmp/certificate-secret.yaml            \napiVersion:\
+              \ v1\nkind: Secret\nmetadata:\n  name: stackgres-operator-certs\n  namespace:\
+              \ syn-stackgres-operator\n  annotations:\n    meta.helm.sh/release-name:\
+              \ stackgres-operator\n    meta.helm.sh/release-namespace: syn-stackgres-operator\n\
+              \  labels:\n    app.kubernetes.io/managed-by: Helm\ntype: kubernetes.io/tls\n\
+              data:\n  tls.key: ${KEY}\n  tls.crt: ${CRT}\nEOF\ncat << EOF > /tmp/validating-webhook-configuration.yaml\
+              \            \napiVersion: admissionregistration.k8s.io/v1\nkind: ValidatingWebhookConfiguration\n\
+              metadata:\n  name: stackgres-operator\n  namespace: syn-stackgres-operator\n\
+              \  annotations:\n    meta.helm.sh/release-name: stackgres-operator\n\
+              \    meta.helm.sh/release-namespace: syn-stackgres-operator\n  labels:\n\
+              \    app.kubernetes.io/managed-by: Helm\nwebhooks:\n  - name: sgcluster.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\"]\n        apiGroups: [\"stackgres.io\"]\n        apiVersions:\
+              \ [\"*\"]\n        resources: [\"sgclusters\"]\n    failurePolicy: Fail\n\
+              \    clientConfig:\n      service:\n        namespace: syn-stackgres-operator\n\
+              \        name: stackgres-operator\n        path: '/stackgres/validation/sgcluster'\n\
+              \      caBundle: '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n \
+              \ - name: sgpgconfig.stackgres-operator.syn-stackgres-operator\n   \
+              \ sideEffects: None\n    rules:\n      - operations: [\"CREATE\", \"\
+              UPDATE\", \"DELETE\"]\n        apiGroups: [\"stackgres.io\"]\n     \
+              \   apiVersions: [\"*\"]\n        resources: [\"sgpgconfigs\"]\n   \
+              \ failurePolicy: Fail\n    clientConfig:\n      service:\n        namespace:\
+              \ syn-stackgres-operator\n        name: stackgres-operator\n       \
+              \ path: '/stackgres/validation/sgpgconfig'\n      caBundle: '${CRT}'\n\
+              \    admissionReviewVersions: [\"v1\"]\n  - name: sgpoolconfig.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\", \"DELETE\"]\n        apiGroups: [\"stackgres.io\"]\n \
+              \       apiVersions: [\"*\"]\n        resources: [\"sgpoolconfigs\"\
+              ]\n    failurePolicy: Fail\n    clientConfig:\n      service:\n    \
+              \    namespace: syn-stackgres-operator\n        name: stackgres-operator\n\
+              \        path: '/stackgres/validation/sgpoolconfig'\n      caBundle:\
+              \ '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n  - name: sginstanceprofile.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\", \"DELETE\"]\n        apiGroups: [\"stackgres.io\"]\n \
+              \       apiVersions: [\"*\"]\n        resources: [\"sginstanceprofiles\"\
+              ]\n    failurePolicy: Fail\n    clientConfig:\n      service:\n    \
+              \    namespace: syn-stackgres-operator\n        name: stackgres-operator\n\
+              \        path: '/stackgres/validation/sginstanceprofile'\n      caBundle:\
+              \ '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n  - name: sgbackupconfig.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\", \"DELETE\"]\n        apiGroups: [\"stackgres.io\"]\n \
+              \       apiVersions: [\"*\"]\n        resources: [\"sgbackupconfigs\"\
+              ]\n    failurePolicy: Fail\n    clientConfig:\n      service:\n    \
+              \    namespace: syn-stackgres-operator\n        name: stackgres-operator\n\
+              \        path: '/stackgres/validation/sgbackupconfig'\n      caBundle:\
+              \ '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n  - name: sgbackup.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\", \"DELETE\"]\n        apiGroups: [\"stackgres.io\"]\n \
+              \       apiVersions: [\"*\"]\n        resources: [\"sgbackups\"]\n \
+              \   failurePolicy: Fail\n    clientConfig:\n      service:\n       \
+              \ namespace: syn-stackgres-operator\n        name: stackgres-operator\n\
+              \        path: '/stackgres/validation/sgbackup'\n      caBundle: '${CRT}'\n\
+              \    admissionReviewVersions: [\"v1\"]\n  - name: sgdistributedlogs.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\", \"DELETE\"]\n        apiGroups: [\"stackgres.io\"]\n \
+              \       apiVersions: [\"*\"]\n        resources: [\"sgdistributedlogs\"\
+              ]\n    failurePolicy: Fail\n    clientConfig:\n      service:\n    \
+              \    namespace: syn-stackgres-operator\n        name: stackgres-operator\n\
+              \        path: '/stackgres/validation/sgdistributedlogs'\n      caBundle:\
+              \ '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n  - name: sgdbops.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\", \"DELETE\"]\n        apiGroups: [\"stackgres.io\"]\n \
+              \       apiVersions: [\"*\"]\n        resources: [\"sgdbops\"]\n   \
+              \ failurePolicy: Fail\n    clientConfig:\n      service:\n        namespace:\
+              \ syn-stackgres-operator\n        name: stackgres-operator\n       \
+              \ path: '/stackgres/validation/sgdbops'\n      caBundle: '${CRT}'\n\
+              \    admissionReviewVersions: [\"v1\"]\n  - name: sgobjectstorage.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\", \"DELETE\"]\n        apiGroups: [\"stackgres.io\"]\n \
+              \       apiVersions: [\"*\"]\n        resources: [\"sgobjectstorages\"\
+              ]\n    failurePolicy: Fail\n    clientConfig:\n      service:\n    \
+              \    namespace: syn-stackgres-operator\n        name: stackgres-operator\n\
+              \        path: '/stackgres/validation/sgobjectstorage'\n      caBundle:\
+              \ '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n  - name: sgscripts.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\", \"DELETE\"]\n        apiGroups: [\"stackgres.io\"]\n \
+              \       apiVersions: [\"*\"]\n        resources: [\"sgscripts\"]\n \
+              \   failurePolicy: Fail\n    clientConfig:\n      service:\n       \
+              \ namespace: syn-stackgres-operator\n        name: stackgres-operator\n\
+              \        path: '/stackgres/validation/sgscript'\n      caBundle: ${CRT}\n\
+              \    admissionReviewVersions: [\"v1\"]\nEOF\ncat << EOF > /tmp/mutating-webhook-configuration.yaml\
+              \            \napiVersion: admissionregistration.k8s.io/v1\nkind: MutatingWebhookConfiguration\n\
+              metadata:\n  name: stackgres-operator\n  namespace: syn-stackgres-operator\n\
+              \  annotations:\n    meta.helm.sh/release-name: stackgres-operator\n\
+              \    meta.helm.sh/release-namespace: syn-stackgres-operator\n  labels:\n\
+              \    app.kubernetes.io/managed-by: Helm\nwebhooks:\n  - name: sgcluster.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\"]\n        apiGroups: [\"stackgres.io\"]\n        apiVersions:\
+              \ [\"*\"]\n        resources: [\"sgclusters\"]\n    failurePolicy: Fail\n\
+              \    clientConfig:\n      service:\n        namespace: syn-stackgres-operator\n\
+              \        name: stackgres-operator\n        path: '/stackgres/mutation/sgcluster'\n\
+              \      caBundle: '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n \
+              \ - name: sgpgconfig.stackgres-operator.syn-stackgres-operator\n   \
+              \ sideEffects: None\n    rules:\n      - operations: [\"CREATE\", \"\
+              UPDATE\"]\n        apiGroups: [\"stackgres.io\"]\n        apiVersions:\
+              \ [\"*\"]\n        resources: [\"sgpgconfigs\"]\n    failurePolicy:\
+              \ Fail\n    clientConfig:\n      service:\n        namespace: syn-stackgres-operator\n\
+              \        name: stackgres-operator\n        path: '/stackgres/mutation/sgpgconfig'\n\
+              \      caBundle: '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n \
+              \ - name: sgpoolconfig.stackgres-operator.syn-stackgres-operator\n \
+              \   sideEffects: None\n    rules:\n      - operations: [\"CREATE\",\
+              \ \"UPDATE\"]\n        apiGroups: [\"stackgres.io\"]\n        apiVersions:\
+              \ [\"*\"]\n        resources: [\"sgpoolconfigs\"]\n    failurePolicy:\
+              \ Fail\n    clientConfig:\n      service:\n        namespace: syn-stackgres-operator\n\
+              \        name: stackgres-operator\n        path: '/stackgres/mutation/sgpoolconfig'\n\
+              \      caBundle: '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n \
+              \ - name: sginstanceprofile.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\"]\n        apiGroups: [\"stackgres.io\"]\n        apiVersions:\
+              \ [\"*\"]\n        resources: [\"sginstanceprofiles\"]\n    failurePolicy:\
+              \ Fail\n    clientConfig:\n      service:\n        namespace: syn-stackgres-operator\n\
+              \        name: stackgres-operator\n        path: '/stackgres/mutation/sginstanceprofile'\n\
+              \      caBundle: '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n \
+              \ - name: sgbackupconfig.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\"]\n        apiGroups: [\"stackgres.io\"]\n        apiVersions:\
+              \ [\"*\"]\n        resources: [\"sgbackupconfigs\"]\n    failurePolicy:\
+              \ Fail\n    clientConfig:\n      service:\n        namespace: syn-stackgres-operator\n\
+              \        name: stackgres-operator\n        path: '/stackgres/mutation/sgbackupconfig'\n\
+              \      caBundle: '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n \
+              \ - name: sgbackup.stackgres-operator.syn-stackgres-operator\n    sideEffects:\
+              \ None\n    rules:\n      - operations: [\"CREATE\", \"UPDATE\"]\n \
+              \       apiGroups: [\"stackgres.io\"]\n        apiVersions: [\"*\"]\n\
+              \        resources: [\"sgbackups\"]\n    failurePolicy: Fail\n    clientConfig:\n\
+              \      service:\n        namespace: syn-stackgres-operator\n       \
+              \ name: stackgres-operator\n        path: '/stackgres/mutation/sgbackup'\n\
+              \      caBundle: '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n \
+              \ - name: sgdistributedlogs.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\"]\n        apiGroups: [\"stackgres.io\"]\n        apiVersions:\
+              \ [\"*\"]\n        resources: [\"sgdistributedlogs\"]\n    failurePolicy:\
+              \ Fail\n    clientConfig:\n      service:\n        namespace: syn-stackgres-operator\n\
+              \        name: stackgres-operator\n        path: '/stackgres/mutation/sgdistributedlogs'\n\
+              \      caBundle: '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n \
+              \ - name: sgdbops.stackgres-operator.syn-stackgres-operator\n    sideEffects:\
+              \ None\n    rules:\n      - operations: [\"CREATE\", \"UPDATE\"]\n \
+              \       apiGroups: [\"stackgres.io\"]\n        apiVersions: [\"*\"]\n\
+              \        resources: [\"sgdbops\"]\n    failurePolicy: Fail\n    clientConfig:\n\
+              \      service:\n        namespace: syn-stackgres-operator\n       \
+              \ name: stackgres-operator\n        path: '/stackgres/mutation/sgdbops'\n\
+              \      caBundle: '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n \
+              \ - name: sgobjectstorage.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\"]\n        apiGroups: [\"stackgres.io\"]\n        apiVersions:\
+              \ [\"*\"]\n        resources: [\"sgobjectstorages\"]\n    failurePolicy:\
+              \ Fail\n    clientConfig:\n      service:\n        namespace: syn-stackgres-operator\n\
+              \        name: stackgres-operator\n        path: '/stackgres/mutation/sgobjectstorage'\n\
+              \      caBundle: '${CRT}'\n    admissionReviewVersions: [\"v1\"]\n \
+              \ - name: sgscripts.stackgres-operator.syn-stackgres-operator\n    sideEffects:\
+              \ None\n    rules:\n      - operations: [\"CREATE\", \"UPDATE\"]\n \
+              \       apiGroups: [\"stackgres.io\"]\n        apiVersions: [\"*\"]\n\
+              \        resources: [\"sgscripts\"]\n    failurePolicy: Fail\n    clientConfig:\n\
+              \      service:\n        namespace: syn-stackgres-operator\n       \
+              \ name: stackgres-operator\n        path: '/stackgres/mutation/sgscript'\n\
+              \      caBundle: ${CRT}\n    admissionReviewVersions: [\"v1\"]\n\nEOF\n\
+              \nkubectl delete -f /tmp/certificate-secret.yaml --ignore-not-found\n\
+              kubectl apply -f /tmp/certificate-secret.yaml\nkubectl apply -f /tmp/validating-webhook-configuration.yaml\n\
+              kubectl apply -f /tmp/mutating-webhook-configuration.yaml\ncat << EOF\
+              \ > /tmp/csr-web.conf\n[req]\nreq_extensions = v3_req\ndistinguished_name\
+              \ = req_distinguished_name\n[req_distinguished_name]\n[ v3_req ]\nbasicConstraints\
+              \ = CA:FALSE\nkeyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
+              extendedKeyUsage = serverAuth\nsubjectAltName = @alt_names\n[alt_names]\n\
+              DNS.1 = stackgres-restapi\nDNS.2 = stackgres-restapi.syn-stackgres-operator\n\
+              DNS.3 = stackgres-restapi.syn-stackgres-operator.svc\nDNS.4 = stackgres-restapi.syn-stackgres-operator.svc.cluster.local\n\
+              EOF\n\nopenssl req -new -nodes -text -keyout /tmp/web.key \\\n    -subj\
+              \ \"/CN=stackgres-restapi.syn-stackgres-operator\" \\\n    -out /tmp/server-web.csr\
+              \ \\\n    -config /tmp/csr-web.conf\nopenssl rsa -in /tmp/web.key -pubout\
+              \ -out /tmp/web.pem\nopenssl x509 -signkey /tmp/web.key -in /tmp/server-web.csr\
+              \ \\\n  -req -days 365 -out /tmp/server-web.crt\nWEB_KEY=\"$(cat /tmp/web.key\
+              \ | base64 | tr -d '\\n')\"\nWEB_PUB=\"$(cat /tmp/web.pem | base64 |\
+              \ tr -d '\\n')\"\nWEB_CRT=\"$(cat /tmp/server-web.crt | base64 | tr\
+              \ -d '\\n')\"\ncat << EOF > /tmp/web-certificate-secret.yaml       \
+              \     \napiVersion: v1\nkind: Secret\nmetadata:\n  name: stackgres-operator-web-certs\n\
+              \  namespace: syn-stackgres-operator\n  annotations:\n    meta.helm.sh/release-name:\
+              \ stackgres-operator\n    meta.helm.sh/release-namespace: syn-stackgres-operator\n\
+              \  labels:\n    app.kubernetes.io/managed-by: Helm\ntype: kubernetes.io/tls\n\
+              data:\n  tls.key: ${WEB_KEY}\n  tls.crt: ${WEB_CRT}\n  jwt-rsa.key:\
+              \ ${WEB_KEY}\n  jwt-rsa.pub: ${WEB_PUB}\nEOF\n\nkubectl delete -f /tmp/web-certificate-secret.yaml\
+              \ --ignore-not-found\nkubectl apply -f /tmp/web-certificate-secret.yaml\n"
+          image: docker.io/ongres/kubectl:v1.24.3-build-6.16
+          imagePullPolicy: IfNotPresent
+          name: create-certificate
+      restartPolicy: OnFailure
+      securityContext: null
+      serviceAccountName: stackgres-operator-init
+      terminationGracePeriodSeconds: 0
