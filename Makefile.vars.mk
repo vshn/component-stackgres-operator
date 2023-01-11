@@ -1,6 +1,16 @@
 # The component name is hard-coded from the template
 COMPONENT_NAME ?= stackgres-operator
 
+PROJECT_ROOT_DIR = .
+PROJECT_NAME ?= stackgres-operator
+PROJECT_OWNER ?= vshn
+
+## BUILD:go
+BIN_FILENAME ?= $(PROJECT_NAME)
+go_bin ?= $(PWD)/.work/bin
+$(go_bin):
+	@mkdir -p $@
+
 git_dir         ?= $(shell git rev-parse --git-common-dir)
 compiled_path   ?= compiled/$(COMPONENT_NAME)/$(COMPONENT_NAME)
 root_volume     ?= -v "$${PWD}:/$(COMPONENT_NAME)"
@@ -23,6 +33,14 @@ else
 	DOCKER_USERNS ?= keep-id
 endif
 DOCKER_ARGS ?= run --rm -u "$$(id -u):$$(id -g)" --userns=$(DOCKER_USERNS) -w /$(COMPONENT_NAME) -e HOME="/$(COMPONENT_NAME)"
+
+## KIND:setup
+
+# https://hub.docker.com/r/kindest/node/tags
+KIND_NODE_VERSION ?= v1.24.0
+KIND_IMAGE ?= docker.io/kindest/node:$(KIND_NODE_VERSION)
+KIND_KUBECONFIG ?= $(kind_dir)/kind-kubeconfig-$(KIND_NODE_VERSION)
+KIND_CLUSTER ?= $(PROJECT_NAME)-$(KIND_NODE_VERSION)
 
 JSONNET_FILES   ?= $(shell find . -type f -not -path './vendor/*' \( -name '*.*jsonnet' -or -name '*.libsonnet' \))
 JSONNETFMT_ARGS ?= --in-place --pad-arrays

@@ -1,5 +1,7 @@
 # Commodore
 /.cache
+/.kind
+/.work
 /dependencies
 /helmcharts
 /manifests
