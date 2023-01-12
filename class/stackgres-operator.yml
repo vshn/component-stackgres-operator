@@ -1,11 +1,9 @@
 parameters:
   kapitan:
     dependencies:
-      - type: helm
-        output_path: dependencies/stackgres-operator/helmcharts/stackgres-operator/${stackgres_operator:charts:stackgres-operator:version}
-        source: ${stackgres_operator:charts:stackgres-operator:source}
-        version: ${stackgres_operator:charts:stackgres-operator:version}
-        chart_name: stackgres-operator
+      - type: https
+        source: https://stackgres.io/downloads/stackgres-k8s/stackgres/1.4.0/helm/stackgres-operator.tgz
+        output_path: dependencies/stackgres-operator/helmcharts/stackgres-operator/1.4.0/stackgres-operator.tgz
     compile:
       - input_paths:
           - ${_base_directory}/component/app.jsonnet
@@ -18,15 +16,9 @@ parameters:
       - output_path: stackgres-operator/01_helmchart
         input_type: helm
         input_paths:
-          - dependencies/stackgres-operator/helmcharts/stackgres-operator/${stackgres_operator:charts:stackgres-operator:version}/
+          - dependencies/stackgres-operator/helmcharts/stackgres-operator/1.4.0/stackgres-operator.tgz
         helm_values: ${stackgres_operator:helmValues}
         helm_params:
           name: stackgres-operator
           namespace: ${stackgres_operator:namespace}
           api_versions: "project.openshift.io/v1"
-  commodore:
-    postprocess:
-      filters:
-        - type: jsonnet
-          filter: postprocess/update_images.jsonnet
-          path: ${_instance}/01_helmchart/stackgres-operator/templates
