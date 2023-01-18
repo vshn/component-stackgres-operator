@@ -6,6 +6,7 @@ SHELL := bash
 .SUFFIXES:
 
 include Makefile.vars.mk
+include kind/kind.mk
 
 .PHONY: help
 help: ## Show this help
@@ -51,6 +52,7 @@ docs-serve: ## Preview the documentation
 .PHONY: test
 test: commodore_args += -f tests/$(instance).yml
 test: .compile ## Compile the component
+
 .PHONY: gen-golden
 gen-golden: commodore_args += -f tests/$(instance).yml
 gen-golden: clean .compile ## Update the reference version for target `golden-diff`.
@@ -79,6 +81,11 @@ lint_kubent_all: $(test_instances) ## Lint deprecated Kubernetes API versions fo
 $(test_instances):
 	$(MAKE) $(recursive_target) -e instance=$(basename $(@F))
 
+.PHONY: install
+install: export KUBECONFIG = $(KIND_KUBECONFIG)
+install: kind-setup .compile ## Install operator in a local cluster
+	kubectl apply -R -f compiled/stackgres-operator/stackgres-operator
+
 .PHONY: clean
-clean: ## Clean the project
+clean: kind-clean ## Clean the project
 	rm -rf .cache compiled dependencies vendor helmcharts jsonnetfile*.json || true
