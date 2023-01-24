@@ -6,6 +6,7 @@ parameters:
       stackgres-operator:
         source: "https://stackgres.io/downloads/stackgres-k8s/stackgres/helm/"
         version: "1.4.0"
+    kubernetesVersion: "${dynamic_facts:kubernetesVersion:major}.${dynamic_facts:kubernetesVersion:minor}"
     helmValues:
       deploy:
         restapi: false
