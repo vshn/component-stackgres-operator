@@ -1,6 +1,10 @@
 # Overwrite parameters here
 
 parameters:
+  dynamic_facts:
+    kubernetesVersion:
+      major: 1
+      minor: 24
   stackgres_operator:
     images:
       kubectl:

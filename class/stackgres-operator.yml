@@ -24,6 +24,7 @@ parameters:
           name: stackgres-operator
           namespace: ${stackgres_operator:namespace}
           api_versions: "project.openshift.io/v1"
+          kube_version: ${stackgres_operator:kubernetesVersion}
   commodore:
     postprocess:
       filters:
