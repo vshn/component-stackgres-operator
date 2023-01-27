@@ -6,14 +6,27 @@ local inv = com.inventory();
 local params = inv.parameters.stackgres_operator;
 
 local file_extension = '.yaml';
-local file_names = [
+local file_names_kubectl_image = [
   'create-certificate-job',
   'set-crd-version-job',
   'wait-job',
   'wait-webhooks-job',
 ];
 
-local image = '%s/%s:%s' % [ params.images.kubectl.repository, params.images.kubectl.image, params.images.kubectl.tag ];
+local file_names_operator_image = [
+  'operator-deployment',
+];
+
+local set_image_registry(c, image_param, super_image) =
+  if std.objectHas(image_param, 'tag') && image_param.tag != null && image_param.tag != '' then
+    c {
+      image: '%s/%s:%s' % [ image_param.repository, image_param.image, image_param.tag ],
+    }
+  else
+    c {
+      image: '%s/%s:%s' % [ image_param.repository, image_param.image, std.split(super_image, ':')[1] ],
+    }
+;
 
 {
   [file]: com.yaml_load(std.extVar('output_path') + '/' + file + file_extension) {
@@ -22,9 +35,7 @@ local image = '%s/%s:%s' % [ params.images.kubectl.repository, params.images.kub
         spec+: {
           containers: [
             if std.startsWith(c.image, 'ongres/kubectl') then
-              c {
-                image: image,
-              }
+              set_image_registry(c, params.images.kubectl, c.image)
             else
               c
             for c in super.containers
@@ -33,5 +44,23 @@ local image = '%s/%s:%s' % [ params.images.kubectl.repository, params.images.kub
       },
     },
   }
-  for file in file_names
+  for file in file_names_kubectl_image
+} +
+{
+  [file]: com.yaml_load(std.extVar('output_path') + '/' + file + file_extension) {
+    spec+: {
+      template+: {
+        spec+: {
+          containers: [
+            if std.startsWith(c.image, 'stackgres/operator') then
+              set_image_registry(c, params.images.stackgres_operator, c.image)
+            else
+              c
+            for c in super.containers
+          ],
+        },
+      },
+    },
+  }
+  for file in file_names_operator_image
 }
