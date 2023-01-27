@@ -32,7 +32,7 @@ spec:
               value: 'true'
             - name: CONVERSION_WEBHOOKS
               value: 'false'
-          image: stackgres/jobs:1.4.0
+          image: docker.io/stackgres/jobs:1.4.0
           imagePullPolicy: IfNotPresent
           name: crd-upgrade
       restartPolicy: OnFailure

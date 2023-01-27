@@ -19,3 +19,7 @@ parameters:
         repository: docker.io
         image: stackgres/operator
         tag: ""
+      stackgres_jobs:
+        repository: docker.io
+        image: stackgres/jobs
+        tag: ""

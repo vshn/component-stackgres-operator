@@ -30,7 +30,7 @@ spec:
                   fieldPath: metadata.namespace
             - name: CR_UPDATER
               value: 'true'
-          image: stackgres/jobs:1.4.0
+          image: docker.io/stackgres/jobs:1.4.0
           imagePullPolicy: IfNotPresent
           name: stackgres-jobs
           securityContext: null
