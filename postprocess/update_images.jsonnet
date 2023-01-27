@@ -17,6 +17,12 @@ local file_names_operator_image = [
   'operator-deployment',
 ];
 
+local file_names_jobs_image = [
+  'cr-updater-job',
+  'crd-upgrade-job',
+  'crd-webhooks-job',
+];
+
 local set_image_registry(c, image_param, super_image) =
   if std.objectHas(image_param, 'tag') && image_param.tag != null && image_param.tag != '' then
     c {
@@ -63,4 +69,22 @@ local set_image_registry(c, image_param, super_image) =
     },
   }
   for file in file_names_operator_image
+} +
+{
+  [file]: com.yaml_load(std.extVar('output_path') + '/' + file + file_extension) {
+    spec+: {
+      template+: {
+        spec+: {
+          containers: [
+            if std.startsWith(c.image, 'stackgres/jobs') then
+              set_image_registry(c, params.images.stackgres_jobs, c.image)
+            else
+              c
+            for c in super.containers
+          ],
+        },
+      },
+    },
+  }
+  for file in file_names_jobs_image
 }

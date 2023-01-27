@@ -34,7 +34,7 @@ spec:
               value: 'false'
             - name: CONVERSION_WEBHOOKS
               value: 'true'
-          image: stackgres/jobs:1.4.0
+          image: docker.io/stackgres/jobs:1.4.0
           imagePullPolicy: IfNotPresent
           name: conversion-webhooks
       restartPolicy: OnFailure
