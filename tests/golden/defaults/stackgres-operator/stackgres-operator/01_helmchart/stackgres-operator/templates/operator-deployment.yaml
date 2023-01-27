@@ -46,7 +46,7 @@ spec:
               value: IfNotPresent
             - name: EXTENSIONS_REPOSITORY_URLS
               value: https://extensions.stackgres.io/postgres/repository
-          image: stackgres/operator:1.4.0
+          image: docker.io/stackgres/operator:1.4.0
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
