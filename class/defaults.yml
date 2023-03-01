@@ -7,9 +7,20 @@ parameters:
         source: "https://stackgres.io/downloads/stackgres-k8s/stackgres/helm/"
         version: "1.4.0"
     kubernetesVersion: "${dynamic_facts:kubernetesVersion:major}.${dynamic_facts:kubernetesVersion:minor}"
+
+    certManager:
+      autoConfigure: true
+
     helmValues:
       deploy:
         restapi: false
+      operator:
+        annotations:
+          # This makes sure we redeploy stackgres if we change the cert-manager config
+          cert-manager-config: >
+            ${stackgres_operator:certManager}
+      cert:
+        certManager: ${stackgres_operator:certManager}
     images:
       kubectl:
         repository: docker.io

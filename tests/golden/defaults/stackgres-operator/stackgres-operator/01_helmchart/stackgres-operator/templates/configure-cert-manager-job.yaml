@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: '5'
+  labels:
+    app: stackgres-operator
+    job: configure-cert-manager
+    scope: init
+  name: stackgres-operator-configure-cert-manager
+  namespace: syn-stackgres-operator
+spec:
+  template:
+    metadata:
+      labels:
+        app: stackgres-operator
+        job: configure-cert-manager
+        scope: init
+    spec:
+      containers:
+        - command:
+            - /bin/bash
+            - -ecx
+            - "cat << EOF | kubectl apply -f -\n---\napiVersion: cert-manager.io/v1\n\
+              kind: Issuer\nmetadata:\n  name: \"stackgres-operator-self-signed-issuer\"\
+              \n  namespace: \"syn-stackgres-operator\"\nspec:\n  selfSigned: {}\n\
+              ---\napiVersion: cert-manager.io/v1\nkind: Certificate\nmetadata:\n\
+              \  name: \"stackgres-operator-ca\"\n  namespace: \"syn-stackgres-operator\"\
+              \nspec:\n  isCA: true\n  commonName: \"stackgres-operator-ca\"\n  secretName:\
+              \ \"stackgres-operator-ca\"\n  privateKey:\n    algorithm: ECDSA\n \
+              \   size: 256\n  issuerRef:\n    name: \"stackgres-operator-self-signed-issuer\"\
+              \n    kind: Issuer\n    group: cert-manager.io\n---\napiVersion: cert-manager.io/v1\n\
+              kind: Issuer\nmetadata:\n  name: \"stackgres-operator-ca-issuer\"\n\
+              \  namespace: \"syn-stackgres-operator\"\nspec:\n  ca:\n    secretName:\
+              \ \"stackgres-operator-ca\"\n---\napiVersion: cert-manager.io/v1\nkind:\
+              \ Certificate\nmetadata:\n  name: \"stackgres-operator-cert\"\n  namespace:\
+              \ \"syn-stackgres-operator\"\nspec:\n  secretName: \"stackgres-operator-certs\"\
+              \n  duration: \"2160h\"\n  renewBefore: \"360h\"\n  subject:\n    organizations:\n\
+              \      - OnGres\n  isCA: false\n  privateKey:\n    algorithm: RSA\n\
+              \    encoding: \"PKCS1\"\n    size: 2048\n  usages:\n    - server auth\n\
+              \    - client auth\n  dnsNames:\n    - stackgres-operator\n    - stackgres-operator.syn-stackgres-operator\n\
+              \    - stackgres-operator.syn-stackgres-operator.svc\n    - stackgres-operator.syn-stackgres-operator.svc.cluster.local\n\
+              \  issuerRef:\n    name: \"stackgres-operator-ca-issuer\"\n    kind:\
+              \ Issuer\n    group: cert-manager.io\nEOF\n"
+          image: ongres/kubectl:v1.24.3-build-6.16
+          imagePullPolicy: IfNotPresent
+          name: configure-cert-manager
+      restartPolicy: OnFailure
+      serviceAccountName: stackgres-operator-init
+      terminationGracePeriodSeconds: 0
