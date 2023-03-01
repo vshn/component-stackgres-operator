@@ -23,14 +23,15 @@ spec:
         - command:
             - /bin/bash
             - -ecx
-            - "echo -n \"Waiting for secret stackgres-operator-certs to be available...\"\
-              \nuntil kubectl get secret -n 'syn-stackgres-operator' 'stackgres-operator-certs'\
-              \ \\\n  --template '{{ if .data }}{{ if and (index .data \"tls.key\"\
-              ) (index .data \"tls.crt\") }}true{{ end }}{{ end }}' \\\n  | grep -q\
-              \ '^true$'\ndo\n  echo -n .\n  sleep 2\ndone\necho \"secret available\"\
-              \nKEY=\"$(kubectl get secret -n 'syn-stackgres-operator' 'stackgres-operator-certs'\
-              \ --template '{{ (index .data \"tls.key\") }}' | tr -d '\\n')\"\nCRT=\"\
-              $(kubectl get secret -n 'syn-stackgres-operator' 'stackgres-operator-certs'\
+            - "echo -n \"Waiting for secret stackgres-operator-managed-certs to be\
+              \ available...\"\nuntil kubectl get secret -n 'syn-stackgres-operator'\
+              \ 'stackgres-operator-managed-certs' \\\n  --template '{{ if .data }}{{\
+              \ if and (index .data \"tls.key\") (index .data \"tls.crt\") }}true{{\
+              \ end }}{{ end }}' \\\n  | grep -q '^true$'\ndo\n  echo -n .\n  sleep\
+              \ 2\ndone\necho \"secret available\"\nKEY=\"$(kubectl get secret -n\
+              \ 'syn-stackgres-operator' 'stackgres-operator-managed-certs' --template\
+              \ '{{ (index .data \"tls.key\") }}' | tr -d '\\n')\"\nCRT=\"$(kubectl\
+              \ get secret -n 'syn-stackgres-operator' 'stackgres-operator-managed-certs'\
               \ --template '{{ (index .data \"tls.crt\") }}' | tr -d '\\n')\"\ncat\
               \ << EOF > /tmp/validating-webhook-configuration.yaml            \n\
               apiVersion: admissionregistration.k8s.io/v1\nkind: ValidatingWebhookConfiguration\n\

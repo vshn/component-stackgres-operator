@@ -36,7 +36,7 @@ spec:
               \  namespace: \"syn-stackgres-operator\"\nspec:\n  ca:\n    secretName:\
               \ \"stackgres-operator-ca\"\n---\napiVersion: cert-manager.io/v1\nkind:\
               \ Certificate\nmetadata:\n  name: \"stackgres-operator-cert\"\n  namespace:\
-              \ \"syn-stackgres-operator\"\nspec:\n  secretName: \"stackgres-operator-certs\"\
+              \ \"syn-stackgres-operator\"\nspec:\n  secretName: \"stackgres-operator-managed-certs\"\
               \n  duration: \"2160h\"\n  renewBefore: \"360h\"\n  subject:\n    organizations:\n\
               \      - OnGres\n  isCA: false\n  privateKey:\n    algorithm: RSA\n\
               \    encoding: \"PKCS1\"\n    size: 2048\n  usages:\n    - server auth\n\
