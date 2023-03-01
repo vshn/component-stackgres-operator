@@ -14,11 +14,18 @@ The namespace in which to deploy this component.
 
 [horizontal]
 type:: dict
-default:: `{}`
 
 List of Helm values to pass to the Helm chart.
-For a list of supported values see: https://stackgres.io/doc/latest/install/operator/parameters/[stackgres operator paramaters].
+For a list of supported values see: https://stackgres.io/doc/latest/install/operator/parameters/[stackgres operator parameters].
 
+
+By default, the rest API is disabled and certificate management by cert-manager is enabled.
+
+[WARNING]
+====
+This means by default this component requires a working cert-manager instance on the cluster.
+If cert-manager isn't installed on the target cluster, disable cert-manager support by setting `helmValues.cert.certManager.autoConfigure: false`.
+====
 
 == Example
 
