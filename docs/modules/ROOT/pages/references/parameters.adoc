@@ -29,7 +29,11 @@ If cert-manager isn't installed on the target cluster, disable cert-manager supp
 
 [IMPORTANT]
 ====
-If you need to switch from or the cert-manager generated certificates you will have to manually remove the secrets `stackgres-operator-certs` and `stackgres-operator-ca` *before* applying the catalog.
+When switching from or to cert-manager generated certificates can't be done automatically, but needs manual intervention.
+*Before* modifying `helmValues.cert.certManager.autoConfigure` you'll have to manually remove the secrets `stackgres-operator-certs` and `stackgres-operator-ca` from the operator namespace.
+This is necessary as the installation jobs won't clean up old certificates, which will lead to certificate validation errors.
+
+Please be aware that this will result in downtime for the operator.
 ====
 
 == Example
