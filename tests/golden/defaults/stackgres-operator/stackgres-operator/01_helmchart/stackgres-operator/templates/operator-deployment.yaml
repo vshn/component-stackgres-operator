@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   annotations:
     cert-config: |
-      {'certManager': {'autoConfigure': True}, 'secretName': 'stackgres-operator-managed-certs'}
+      {'certManager': {'autoConfigure': True}}
   labels:
     app: stackgres-operator
     group: stackgres.io
@@ -90,4 +90,4 @@ spec:
               - key: tls.crt
                 path: server.crt
             optional: false
-            secretName: stackgres-operator-managed-certs
+            secretName: stackgres-operator-certs

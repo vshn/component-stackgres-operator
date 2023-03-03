@@ -27,6 +27,11 @@ This means by default this component requires a working cert-manager instance on
 If cert-manager isn't installed on the target cluster, disable cert-manager support by setting `helmValues.cert.certManager.autoConfigure: false`.
 ====
 
+[IMPORTANT]
+====
+If you need to switch from or the cert-manager generated certificates you will have to manually remove the secrets `stackgres-operator-certs` and `stackgres-operator-ca` *before* applying the catalog.
+====
+
 == Example
 
 [source,yaml]

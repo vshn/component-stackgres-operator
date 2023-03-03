@@ -9,18 +9,12 @@ parameters:
         version: "1.4.0"
     kubernetesVersion: "${dynamic_facts:kubernetesVersion:major}.${dynamic_facts:kubernetesVersion:minor}"
 
-    =_cert_secret_name:
-      "True": stackgres-operator-managed-certs
-      "False": stackgres-operator-certs
-
     helmValues:
       deploy:
         restapi: false
       cert:
         certManager:
           autoConfigure: true
-        # We change the certificate secret name if we switch between cluster signed and cert-manager managed certs to avoid a race condition in the setup job
-        secretName: ${stackgres_operator:_cert_secret_name:${stackgres_operator:helmValues:cert:certManager:autoConfigure}}
       operator:
         annotations:
           # This makes sure we redeploy stackgres if we change the cert config
