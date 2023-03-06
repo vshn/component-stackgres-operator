@@ -1,6 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    cert-config: |
+      {'certManager': {'autoConfigure': True}}
   labels:
     app: stackgres-operator
     group: stackgres.io

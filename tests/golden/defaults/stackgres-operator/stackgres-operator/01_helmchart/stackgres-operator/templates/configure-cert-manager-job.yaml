@@ -1,0 +1,98 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: '5'
+  labels:
+    app: stackgres-operator
+    job: configure-cert-manager
+    scope: init
+  name: stackgres-operator-configure-cert-manager
+  namespace: syn-stackgres-operator
+spec:
+  template:
+    metadata:
+      labels:
+        app: stackgres-operator
+        job: configure-cert-manager
+        scope: init
+    spec:
+      containers:
+        - command:
+            - /bin/bash
+            - -ecx
+            - |
+              cat << EOF | kubectl apply -f -
+              ---
+              apiVersion: cert-manager.io/v1
+              kind: Issuer
+              metadata:
+                name: "stackgres-operator-self-signed-issuer"
+                namespace: "syn-stackgres-operator"
+              spec:
+                selfSigned: {}
+              ---
+              apiVersion: cert-manager.io/v1
+              kind: Certificate
+              metadata:
+                name: "stackgres-operator-ca"
+                namespace: "syn-stackgres-operator"
+              spec:
+                isCA: true
+                commonName: "stackgres-operator-ca"
+                secretName: "stackgres-operator-ca"
+                privateKey:
+                  algorithm: ECDSA
+                  size: 256
+                issuerRef:
+                  name: "stackgres-operator-self-signed-issuer"
+                  kind: Issuer
+                  group: cert-manager.io
+              ---
+              apiVersion: cert-manager.io/v1
+              kind: Issuer
+              metadata:
+                name: "stackgres-operator-ca-issuer"
+                namespace: "syn-stackgres-operator"
+              spec:
+                ca:
+                  secretName: "stackgres-operator-ca"
+              ---
+              apiVersion: cert-manager.io/v1
+              kind: Certificate
+              metadata:
+                name: "stackgres-operator-cert"
+                namespace: "syn-stackgres-operator"
+              spec:
+                secretName: "stackgres-operator-certs"
+                duration: "2160h"
+                renewBefore: "360h"
+                subject:
+                  organizations:
+                    - OnGres
+                isCA: false
+                privateKey:
+                  algorithm: RSA
+                  encoding: "PKCS1"
+                  size: 2048
+                usages:
+                  - server auth
+                  - client auth
+                dnsNames:
+                  - stackgres-operator
+                  - stackgres-operator.syn-stackgres-operator
+                  - stackgres-operator.syn-stackgres-operator.svc
+                  - stackgres-operator.syn-stackgres-operator.svc.cluster.local
+                issuerRef:
+                  name: "stackgres-operator-ca-issuer"
+                  kind: Issuer
+                  group: cert-manager.io
+              EOF
+          image: ongres/kubectl:v1.24.3-build-6.16
+          imagePullPolicy: IfNotPresent
+          name: configure-cert-manager
+      restartPolicy: OnFailure
+      serviceAccountName: stackgres-operator-init
+      terminationGracePeriodSeconds: 0

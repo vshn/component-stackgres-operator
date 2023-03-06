@@ -14,11 +14,27 @@ The namespace in which to deploy this component.
 
 [horizontal]
 type:: dict
-default:: `{}`
 
 List of Helm values to pass to the Helm chart.
-For a list of supported values see: https://stackgres.io/doc/latest/install/operator/parameters/[stackgres operator paramaters].
+For a list of supported values see: https://stackgres.io/doc/latest/install/operator/parameters/[stackgres operator parameters].
 
+
+By default, the rest API is disabled and certificate management by cert-manager is enabled.
+
+[WARNING]
+====
+This means by default this component requires a working cert-manager instance on the cluster.
+If cert-manager isn't installed on the target cluster, disable cert-manager support by setting `helmValues.cert.certManager.autoConfigure: false`.
+====
+
+[IMPORTANT]
+====
+When switching from or to cert-manager generated certificates can't be done automatically, but needs manual intervention.
+*Before* modifying `helmValues.cert.certManager.autoConfigure` you'll have to manually remove the secrets `stackgres-operator-certs` and `stackgres-operator-ca` from the operator namespace.
+This is necessary as the installation jobs won't clean up old certificates, which will lead to certificate validation errors.
+
+Please be aware that this will result in downtime for the operator.
+====
 
 == Example
 
