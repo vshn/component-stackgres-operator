@@ -1,0 +1,158 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    meta.helm.sh/release-name: stackgres-operator
+    meta.helm.sh/release-namespace: syn-stackgres-operator
+  labels:
+    app: stackgres-restapi
+    app.kubernetes.io/managed-by: Helm
+    group: stackgres.io
+    version: 1.4.0
+  name: stackgres-restapi
+  namespace: syn-stackgres-operator
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: stackgres-restapi
+      group: stackgres.io
+  template:
+    metadata:
+      labels:
+        app: stackgres-restapi
+        group: stackgres.io
+    spec:
+      containers:
+        - env:
+            - name: RESTAPI_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: RESTAPI_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: AUTHENTICATION_SECRET_NAME
+              value: stackgres-restapi
+            - name: USE_ARBITRARY_USER
+              value: 'true'
+            - name: EXTENSIONS_REPOSITORY_URLS
+              value: https://extensions.stackgres.io/postgres/repository
+            - name: STACKGRES_AUTH_TYPE
+              value: jwt
+          image: stackgres/restapi:1.4.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /q/health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: stackgres-restapi
+          ports:
+            - containerPort: 8080
+              name: resthttp
+              protocol: TCP
+            - containerPort: 8443
+              name: resthttps
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /q/health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 2
+          securityContext: null
+          volumeMounts:
+            - mountPath: /etc/operator/certs
+              name: web-certs
+              readOnly: true
+        - args:
+            - /bin/sh
+            - -ec
+            - |
+              envsubst '
+                $GRAFANA_EMBEDDED
+                $GRAFANA_URL_PATH
+                $GRAFANA_SCHEMA
+                $GRAFANA_WEB_HOST
+                $GRAFANA_TOKEN' \
+                < /etc/nginx/template.d/stackgres-restapi.template \
+                > /etc/nginx/conf.d/stackgres-restapi.conf
+              exec nginx -g 'daemon off;'
+          env:
+            - name: GRAFANA_URL_PATH
+              value: /
+            - name: GRAFANA_SCHEMA
+              value: http
+            - name: GRAFANA_WEB_HOST
+              value: localhost:8080
+            - name: GRAFANA_TOKEN
+              value: unknown
+          image: stackgres/admin-ui:1.4.0
+          imagePullPolicy: IfNotPresent
+          name: stackgres-adminui
+          ports:
+            - containerPort: 9443
+              name: https
+              protocol: TCP
+            - containerPort: 9080
+              name: http
+              protocol: TCP
+          securityContext: null
+          volumeMounts:
+            - mountPath: /etc/operator/certs
+              name: web-certs
+              readOnly: true
+            - mountPath: /etc/nginx/nginx.conf
+              name: operator-nginx
+              readOnly: true
+              subPath: nginx.conf
+            - mountPath: /etc/nginx/template.d
+              name: operator-nginx
+              readOnly: true
+            - mountPath: /etc/nginx/conf.d
+              name: operator-nginx-etc
+              readOnly: false
+              subPath: etc/nginx/conf.d
+            - mountPath: /var/cache/nginx
+              name: operator-nginx-etc
+              readOnly: false
+              subPath: var/cache/nginx
+            - mountPath: /var/run
+              name: operator-nginx-etc
+              readOnly: false
+              subPath: var/run
+      securityContext: null
+      serviceAccountName: stackgres-restapi
+      volumes:
+        - name: web-certs
+          secret:
+            items:
+              - key: tls.key
+                path: root.key
+              - key: tls.crt
+                path: server.crt
+              - key: jwt-rsa.key
+                path: jwt-rsa.key
+              - key: jwt-rsa.pub
+                path: jwt-rsa.pub
+            optional: false
+            secretName: stackgres-operator-web-certs
+        - configMap:
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+              - key: stackgres-restapi.template
+                path: stackgres-restapi.template
+            name: stackgres-restapi-nginx
+            optional: false
+          name: operator-nginx
+        - emptyDir: {}
+          name: operator-nginx-etc

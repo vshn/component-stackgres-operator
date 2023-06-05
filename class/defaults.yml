@@ -10,8 +10,6 @@ parameters:
     kubernetesVersion: "${dynamic_facts:kubernetesVersion:major}.${dynamic_facts:kubernetesVersion:minor}"
 
     helmValues:
-      deploy:
-        restapi: false
       cert:
         certManager:
           autoConfigure: true

@@ -1,0 +1,18 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    meta.helm.sh/release-name: stackgres-operator
+    meta.helm.sh/release-namespace: syn-stackgres-operator
+  labels:
+    api.stackgres.io/auth: rolebinding
+    app.kubernetes.io/managed-by: Helm
+  name: stackgres-restapi-admin
+  namespace: syn-stackgres-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: User
+    name: admin

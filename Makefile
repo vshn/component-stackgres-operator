@@ -63,7 +63,10 @@ gen-golden: clean .compile ## Update the reference version for target `golden-di
 .PHONY: golden-diff
 golden-diff: commodore_args += -f tests/$(instance).yml
 golden-diff: clean .compile ## Diff compile output against the reference version. Review output and run `make gen-golden golden-diff` if this target fails.
+	rm -f tests/golden/$(instance)/stackgres-operator/stackgres-operator/01_helmchart/stackgres-operator/templates/webapi-authentication-secret.yaml
+	rm -f compiled/stackgres-operator/stackgres-operator/01_helmchart/stackgres-operator/templates/webapi-authentication-secret.yaml
 	@git diff --exit-code --minimal --no-index -- tests/golden/$(instance) compiled/
+	git checkout tests/golden/$(instance)/stackgres-operator/stackgres-operator/01_helmchart/stackgres-operator/templates/webapi-authentication-secret.yaml
 
 .PHONY: golden-diff-all
 golden-diff-all: recursive_target=golden-diff
