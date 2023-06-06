@@ -26,7 +26,9 @@ spec:
             - |
               kubectl set env -n 'syn-stackgres-operator' 'deployment/stackgres-operator' DISABLE_RECONCILIATION-
               kubectl scale --timeout 1h --replicas 1 -n 'syn-stackgres-operator' 'deployment/stackgres-operator'
+              kubectl scale --timeout 1h --replicas 1 -n 'syn-stackgres-operator' 'deployment/stackgres-restapi'
               kubectl rollout status -n 'syn-stackgres-operator' 'deployment/stackgres-operator'
+              kubectl rollout status -n 'syn-stackgres-operator' 'deployment/stackgres-restapi'
           image: docker.io/ongres/kubectl:v1.24.3-build-6.16
           imagePullPolicy: IfNotPresent
           name: stackgres-operator-wait
