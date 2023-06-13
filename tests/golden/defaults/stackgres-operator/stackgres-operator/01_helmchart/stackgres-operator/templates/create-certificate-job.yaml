@@ -204,7 +204,11 @@ spec:
               \  labels:\n    app.kubernetes.io/managed-by: Helm\ntype: kubernetes.io/tls\n\
               data:\n  tls.key: ${WEB_KEY}\n  tls.crt: ${WEB_CRT}\n  jwt-rsa.key:\
               \ ${WEB_KEY}\n  jwt-rsa.pub: ${WEB_PUB}\nEOF\n\nkubectl delete -f /tmp/web-certificate-secret.yaml\
-              \ --ignore-not-found\nkubectl apply -f /tmp/web-certificate-secret.yaml\n"
+              \ --ignore-not-found\nkubectl apply -f /tmp/web-certificate-secret.yaml\n\
+              kubectl annotate --overwrite validatingwebhookconfigurations stackgres-operator\
+              \ cert-manager.io/inject-ca-from=syn-stackgres-operator/stackgres-operator-cert\n\
+              kubectl annotate --overwrite mutatingwebhookconfigurations stackgres-operator\
+              \ cert-manager.io/inject-ca-from=syn-stackgres-operator/stackgres-operator-cert\n"
           image: docker.io/ongres/kubectl:v1.24.3-build-6.16
           imagePullPolicy: IfNotPresent
           name: create-certificate
