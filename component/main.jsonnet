@@ -34,8 +34,59 @@ local networkPolicy = kube.NetworkPolicy('allow-stackgres-api') + {
   },
 };
 
+local pw = std.get(
+  std.get(params.helmValues, 'authentication', default={}),
+  'password',
+  default=''
+);
+local user = std.get(
+  std.get(params.helmValues, 'authentication', default={}),
+  'user',
+  default='admin'
+);
+
+local setRestAPIPwJob = kube.Job('stackgres-restapi-set-password') {
+  local commonLabels = {
+    app: 'stackgres-restapi-set-password',
+    job: 'set-password',
+    scope: 'init',
+  },
+  metadata+: {
+    annotations: {
+      'helm.sh/hook': 'post-install,post-upgrade',
+      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
+      'helm.sh/hook-weight': '10',
+    },
+    labels: commonLabels,
+    namespace: params.namespace,
+  },
+  spec+: {
+    template: {
+      metadata: {
+        labels: commonLabels,
+      },
+      spec: {
+        containers: [
+          kube.Container('set-password') {
+            image: '%(repository)s/%(image)s:%(tag)s' % params.images.kubectl,
+            command: [ '/bin/bash', '-ecx', importstr 'scripts/set-password.sh' ],
+            env_+: {
+              NAMESPACE: params.namespace,
+              USER: user,
+            },
+          },
+        ],
+        restartPolicy: 'OnFailure',
+        serviceAccountName: 'stackgres-operator-init',
+      },
+    },
+  },
+};
+
+
 // Define outputs below
 {
   '00_namespace': kube.Namespace(params.namespace),
   '01_network_policy': networkPolicy,
+  [if pw == '' then '02_set_restAPI_password_job']: setRestAPIPwJob,
 }
