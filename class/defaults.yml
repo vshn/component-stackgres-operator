@@ -3,6 +3,9 @@ parameters:
     =_metadata: {}
 
     namespace: syn-stackgres-operator
+    namespaceLabels: {}
+    namespaceAnnotations: {}
+
     charts:
       stackgres-operator:
         source: "https://stackgres.io/downloads/stackgres-k8s/stackgres/helm/"

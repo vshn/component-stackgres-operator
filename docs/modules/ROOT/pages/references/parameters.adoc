@@ -10,6 +10,23 @@ default:: `syn-stackgres-operator`
 
 The namespace in which to deploy this component.
 
+
+== `namespaceLabels`
+
+[horizontal]
+type:: dict
+default:: `{}`
+
+Additional labels to add to the created namespace.
+
+== `namespaceAnnotations`
+
+[horizontal]
+type:: dict
+default:: `{}`
+
+Additional annotations to add to the created namespace.
+
 == `helmValues`
 
 [horizontal]
