@@ -6,6 +6,10 @@ parameters:
       major: 1
       minor: 24
   stackgres_operator:
+    namespaceLabels:
+      foo: bar
+    namespaceAnnotations:
+      openshift.io/node-selector: node-role.kubernetes.io/infra=
     images:
       kubectl:
         repository: docker.io
