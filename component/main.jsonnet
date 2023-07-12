@@ -20,13 +20,11 @@ local networkPolicy = kube.NetworkPolicy('allow-stackgres-api') + {
       {
         from: [
           {
-            namespaceSelector: {},
-          },
-        ],
-        ports: [
-          {
-            protocol: 'TCP',
-            port: 8443,
+            namespaceSelector: {
+              matchLabels: {
+                'appuio.io/billing-name': 'appcat-postgresql',
+              },
+            },
           },
         ],
       },

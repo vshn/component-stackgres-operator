@@ -10,10 +10,9 @@ spec:
   egress: []
   ingress:
     - from:
-        - namespaceSelector: {}
-      ports:
-        - port: 8443
-          protocol: TCP
+        - namespaceSelector:
+            matchLabels:
+              appuio.io/billing-name: appcat-postgresql
   podSelector:
     matchLabels:
       app: stackgres-restapi
