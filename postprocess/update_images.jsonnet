@@ -82,6 +82,8 @@ local set_image_registry(c, image_param, super_image) =
           containers: [
             if std.startsWith(c.image, 'stackgres/restapi') then
               set_image_registry(c, params.images.stackgres_restapi, c.image)
+            else if std.startsWith(c.image, 'stackgres/admin-ui') then
+              set_image_registry(c, params.images.stackgres_adminui, c.image)
             else
               c
             for c in super.containers
