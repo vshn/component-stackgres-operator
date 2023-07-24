@@ -17,6 +17,10 @@ local file_names_operator_image = [
   'operator-deployment',
 ];
 
+local file_names_restapi_image = [
+  'webapi-deployment',
+];
+
 local file_names_jobs_image = [
   'cr-updater-job',
   'crd-upgrade-job',
@@ -69,6 +73,24 @@ local set_image_registry(c, image_param, super_image) =
     },
   }
   for file in file_names_operator_image
+} +
+{
+  [file]: com.yaml_load(std.extVar('output_path') + '/' + file + file_extension) {
+    spec+: {
+      template+: {
+        spec+: {
+          containers: [
+            if std.startsWith(c.image, 'stackgres/restapi') then
+              set_image_registry(c, params.images.stackgres_restapi, c.image)
+            else
+              c
+            for c in super.containers
+          ],
+        },
+      },
+    },
+  }
+  for file in file_names_restapi_image
 } +
 {
   [file]: com.yaml_load(std.extVar('output_path') + '/' + file + file_extension) {
