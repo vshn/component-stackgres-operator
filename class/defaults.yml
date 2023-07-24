@@ -31,6 +31,10 @@ parameters:
         repository: docker.io
         image: stackgres/operator
         tag: ""
+      stackgres_restapi:
+        repository: docker.io
+        image: stackgres/restapi
+        tag: ""
       stackgres_jobs:
         repository: docker.io
         image: stackgres/jobs

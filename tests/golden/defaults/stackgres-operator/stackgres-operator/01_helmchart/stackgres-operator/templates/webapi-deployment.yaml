@@ -42,7 +42,7 @@ spec:
               value: https://extensions.stackgres.io/postgres/repository
             - name: STACKGRES_AUTH_TYPE
               value: jwt
-          image: stackgres/restapi:1.4.0
+          image: docker.io/stackgres/restapi:1.4.0
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
