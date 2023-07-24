@@ -95,7 +95,7 @@ spec:
               value: localhost:8080
             - name: GRAFANA_TOKEN
               value: unknown
-          image: stackgres/admin-ui:1.4.0
+          image: docker.io/stackgres/admin-ui:1.4.0
           imagePullPolicy: IfNotPresent
           name: stackgres-adminui
           ports:

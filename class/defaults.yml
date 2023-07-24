@@ -35,6 +35,9 @@ parameters:
         repository: docker.io
         image: stackgres/restapi
         tag: ""
+      stackgres_adminui:
+        repository: docker.io
+        image: stackgres/admin-ui
       stackgres_jobs:
         repository: docker.io
         image: stackgres/jobs
