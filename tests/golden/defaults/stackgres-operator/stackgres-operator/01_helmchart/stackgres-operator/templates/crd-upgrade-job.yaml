@@ -6,18 +6,16 @@ metadata:
     helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
     helm.sh/hook-weight: '20'
   labels:
-    app: stackgres-operator
+    app: stackgres-operator-init
     job: upgrade-crd
-    scope: init
   name: stackgres-operator-crd-upgrade
   namespace: syn-stackgres-operator
 spec:
   template:
     metadata:
       labels:
-        app: stackgres-operator
+        app: stackgres-operator-init
         job: upgrade-crd
-        scope: init
     spec:
       containers:
         - env:
@@ -32,7 +30,7 @@ spec:
               value: 'true'
             - name: CONVERSION_WEBHOOKS
               value: 'false'
-          image: docker.io/stackgres/jobs:1.4.0
+          image: quay.io/stackgres/jobs:1.5.0
           imagePullPolicy: IfNotPresent
           name: crd-upgrade
       restartPolicy: OnFailure

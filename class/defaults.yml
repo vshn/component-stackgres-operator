@@ -9,10 +9,16 @@ parameters:
     charts:
       stackgres-operator:
         source: "https://stackgres.io/downloads/stackgres-k8s/stackgres/helm/"
-        version: "1.4.0"
+        version: "1.5.0"
     kubernetesVersion: "${dynamic_facts:kubernetesVersion:major}.${dynamic_facts:kubernetesVersion:minor}"
 
+    images:
+      registry: quay.io
+      kubectl:
+        registry: docker.io
+
     helmValues:
+      containerRegistry: ${stackgres_operator:images:registry}
       cert:
         certManager:
           autoConfigure: true
@@ -21,24 +27,3 @@ parameters:
           # This makes sure we redeploy stackgres if we change the cert config
           cert-config: >
             ${stackgres_operator:helmValues:cert}
-
-    images:
-      kubectl:
-        repository: docker.io
-        image: ongres/kubectl
-        tag: ""
-      stackgres_operator:
-        repository: docker.io
-        image: stackgres/operator
-        tag: ""
-      stackgres_restapi:
-        repository: docker.io
-        image: stackgres/restapi
-        tag: ""
-      stackgres_adminui:
-        repository: docker.io
-        image: stackgres/admin-ui
-      stackgres_jobs:
-        repository: docker.io
-        image: stackgres/jobs
-        tag: ""

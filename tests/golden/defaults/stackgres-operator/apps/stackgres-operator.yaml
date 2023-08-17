@@ -1,6 +1,0 @@
-spec:
-  ignoreDifferences:
-    - group: apps
-      jsonPointers:
-        - /spec/replicas
-      kind: Deployment

@@ -2,22 +2,20 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   annotations:
-    helm.sh/hook: post-upgrade
+    helm.sh/hook: post-install,post-upgrade
     helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
     helm.sh/hook-weight: '50'
   labels:
-    app: stackgres-operator
+    app: stackgres-operator-init
     job: cr-updater
-    scope: init
   name: stackgres-operator-cr-updater
   namespace: syn-stackgres-operator
 spec:
   template:
     metadata:
       labels:
-        app: stackgres-operator
+        app: stackgres-operator-init
         job: cr-updater
-        scope: init
     spec:
       containers:
         - env:
@@ -30,9 +28,9 @@ spec:
                   fieldPath: metadata.namespace
             - name: CR_UPDATER
               value: 'true'
-          image: docker.io/stackgres/jobs:1.4.0
+          image: quay.io/stackgres/jobs:1.5.0
           imagePullPolicy: IfNotPresent
-          name: stackgres-jobs
+          name: cr-updater
           securityContext: null
       restartPolicy: OnFailure
       securityContext: null

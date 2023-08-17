@@ -6,18 +6,16 @@ metadata:
     helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
     helm.sh/hook-weight: '5'
   labels:
-    app: stackgres-operator
+    app: stackgres-operator-init
     job: configure-cert-manager
-    scope: init
   name: stackgres-operator-configure-cert-manager
   namespace: syn-stackgres-operator
 spec:
   template:
     metadata:
       labels:
-        app: stackgres-operator
+        app: stackgres-operator-init
         job: configure-cert-manager
-        scope: init
     spec:
       containers:
         - command:
@@ -90,7 +88,7 @@ spec:
                   kind: Issuer
                   group: cert-manager.io
               EOF
-          image: ongres/kubectl:v1.24.3-build-6.16
+          image: quay.io/ongres/kubectl:v1.25.9-build-6.22
           imagePullPolicy: IfNotPresent
           name: configure-cert-manager
       restartPolicy: OnFailure

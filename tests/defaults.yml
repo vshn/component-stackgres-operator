@@ -11,6 +11,4 @@ parameters:
     namespaceAnnotations:
       openshift.io/node-selector: node-role.kubernetes.io/infra=
     images:
-      kubectl:
-        repository: docker.io
-        image: ongres/kubectl
+      registry: quay.io
