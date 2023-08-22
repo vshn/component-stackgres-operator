@@ -24,8 +24,6 @@ spec:
     spec:
       containers:
         - env:
-            - name: RESET_CERTS
-              value: 'true'
             - name: OPERATOR_NAME
               value: stackgres-operator
             - name: OPERATOR_NAMESPACE

@@ -8,6 +8,7 @@ local params = inv.parameters.stackgres_operator;
 
 local file_extension = '.yaml';
 local file_operator = 'operator-deployment';
+local file_restapi = 'webapi-deployment';
 
 local operator_override = com.yaml_load(std.extVar('output_path') + '/' + file_operator + file_extension) {
   spec+: {
@@ -16,7 +17,29 @@ local operator_override = com.yaml_load(std.extVar('output_path') + '/' + file_o
         containers: [
           c {
             env: [
-              if e.name == 'DISABLE_RECONCILIATION' && e.value == 'true' then
+              if e.name == 'RESET_CERTS' && e.value == 'true' then
+                null
+              else
+                e
+              for e in super.env
+            ],
+
+          }
+          for c in super.containers
+        ],
+      },
+    },
+  },
+};
+
+local restapi_override = com.yaml_load(std.extVar('output_path') + '/' + file_restapi + file_extension) {
+  spec+: {
+    template+: {
+      spec+: {
+        containers: [
+          c {
+            env: [
+              if e.name == 'RESET_CERTS' && e.value == 'true' then
                 null
               else
                 e
@@ -33,4 +56,5 @@ local operator_override = com.yaml_load(std.extVar('output_path') + '/' + file_o
 
 {
   [file_operator]: std.prune(operator_override),
+  [file_restapi]: std.prune(restapi_override),
 }
