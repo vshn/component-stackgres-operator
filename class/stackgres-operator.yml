@@ -29,14 +29,11 @@ parameters:
     postprocess:
       filters:
         - type: jsonnet
-          filter: postprocess/update_images.jsonnet
-          path: ${_instance}/01_helmchart/stackgres-operator/templates
-        - type: jsonnet
           filter: postprocess/fix_certmanager_ca.jsonnet
           path: ${_instance}/01_helmchart/stackgres-operator/templates
         - type: jsonnet
           filter: postprocess/remove_generated_secets.jsonnet
           path: ${_instance}/01_helmchart/stackgres-operator/templates
         - type: jsonnet
-          filter: postprocess/fix_images.jsonnet
-          path: ${_instance}
+          filter: postprocess/remove_disable_reconcile_env.jsonnet
+          path: ${_instance}/01_helmchart/stackgres-operator/templates

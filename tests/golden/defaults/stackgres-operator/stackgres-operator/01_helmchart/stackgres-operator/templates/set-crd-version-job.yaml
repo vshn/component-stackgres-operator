@@ -27,9 +27,9 @@ spec:
               kubectl get crd -o name | grep '\.stackgres\.io$' \
                 | while read -r CRD
                   do
-                    kubectl annotate --overwrite "$CRD" stackgres.io/operatorVersion=1.4.0
+                    kubectl annotate --overwrite "$CRD" stackgres.io/operatorVersion=1.5.0
                   done
-          image: docker.io/ongres/kubectl:v1.24.3-build-6.16
+          image: quay.io/ongres/kubectl:v1.25.9-build-6.22
           imagePullPolicy: IfNotPresent
           name: set-crd-version
       restartPolicy: OnFailure

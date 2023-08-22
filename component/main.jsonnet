@@ -66,7 +66,7 @@ local setRestAPIPwJob = kube.Job('stackgres-restapi-set-password') {
       spec: {
         containers: [
           kube.Container('set-password') {
-            image: '%(repository)s/%(image)s:%(tag)s' % params.images.kubectl,
+            image: '%(s)s/bitnami/kubectl:%(s)s' % [ params.images.kubectl.registry, params.kubernetesVersion ],
             command: [ '/bin/bash', '-ecx', importstr 'scripts/set-password.sh' ],
             env_+: {
               NAMESPACE: params.namespace,

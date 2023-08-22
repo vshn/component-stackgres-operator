@@ -8,11 +8,11 @@ metadata:
     app: stackgres-restapi
     app.kubernetes.io/managed-by: Helm
     group: stackgres.io
-    version: 1.4.0
+    version: 1.5.0
   name: stackgres-restapi
   namespace: syn-stackgres-operator
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: stackgres-restapi
@@ -25,6 +25,8 @@ spec:
     spec:
       containers:
         - env:
+            - name: RESET_CERTS
+              value: 'true'
             - name: RESTAPI_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -42,7 +44,7 @@ spec:
               value: https://extensions.stackgres.io/postgres/repository
             - name: STACKGRES_AUTH_TYPE
               value: jwt
-          image: docker.io/stackgres/restapi:1.4.0
+          image: quay.io/stackgres/restapi:1.5.0
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
@@ -65,9 +67,9 @@ spec:
               path: /q/health/ready
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 30
-            timeoutSeconds: 2
+            initialDelaySeconds: 0
+            periodSeconds: 2
+            timeoutSeconds: 1
           securityContext: null
           volumeMounts:
             - mountPath: /etc/operator/certs
@@ -95,7 +97,7 @@ spec:
               value: localhost:8080
             - name: GRAFANA_TOKEN
               value: unknown
-          image: docker.io/stackgres/admin-ui:1.4.0
+          image: quay.io/stackgres/admin-ui:1.5.0
           imagePullPolicy: IfNotPresent
           name: stackgres-adminui
           ports:
@@ -134,15 +136,6 @@ spec:
       volumes:
         - name: web-certs
           secret:
-            items:
-              - key: tls.key
-                path: root.key
-              - key: tls.crt
-                path: server.crt
-              - key: jwt-rsa.key
-                path: jwt-rsa.key
-              - key: jwt-rsa.pub
-                path: jwt-rsa.pub
             optional: false
             secretName: stackgres-operator-web-certs
         - configMap:

@@ -7,11 +7,11 @@ metadata:
   labels:
     app: stackgres-operator
     group: stackgres.io
-    version: 1.4.0
+    version: 1.5.0
   name: stackgres-operator
   namespace: syn-stackgres-operator
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: stackgres-operator
@@ -24,6 +24,8 @@ spec:
     spec:
       containers:
         - env:
+            - name: RESET_CERTS
+              value: 'true'
             - name: OPERATOR_NAME
               value: stackgres-operator
             - name: OPERATOR_NAMESPACE
@@ -32,7 +34,7 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
             - name: OPERATOR_IMAGE_VERSION
-              value: 1.4.0
+              value: 1.5.0
             - name: PROMETHEUS_AUTOBIND
               value: 'true'
             - name: USE_ARBITRARY_USER
@@ -44,20 +46,20 @@ spec:
             - name: AUTHENTICATION_SECRET_NAME
               value: stackgres-restapi
             - name: SG_CONTAINER_REGISTRY
-              value: docker.io
+              value: quay.io
             - name: SG_IMAGE_PULL_POLICY
               value: IfNotPresent
             - name: EXTENSIONS_REPOSITORY_URLS
               value: https://extensions.stackgres.io/postgres/repository
-          image: docker.io/stackgres/operator:1.4.0
+          image: quay.io/stackgres/operator:1.5.0
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
               path: /q/health/live
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 30
+            initialDelaySeconds: 10
+            periodSeconds: 60
             timeoutSeconds: 10
           name: stackgres-operator
           ports:
@@ -72,22 +74,16 @@ spec:
               path: /q/health/ready
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 30
-            timeoutSeconds: 2
+            initialDelaySeconds: 0
+            periodSeconds: 2
+            timeoutSeconds: 1
           volumeMounts:
             - mountPath: /etc/operator/certs
               name: operator-certs
               readOnly: true
-      securityContext: null
       serviceAccountName: stackgres-operator
       volumes:
         - name: operator-certs
           secret:
-            items:
-              - key: tls.key
-                path: root.key
-              - key: tls.crt
-                path: server.crt
             optional: false
             secretName: stackgres-operator-certs

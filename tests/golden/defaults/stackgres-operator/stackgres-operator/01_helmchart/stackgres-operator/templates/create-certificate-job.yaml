@@ -107,7 +107,14 @@ spec:
               \   failurePolicy: Fail\n    clientConfig:\n      service:\n       \
               \ namespace: syn-stackgres-operator\n        name: stackgres-operator\n\
               \        path: '/stackgres/validation/sgscript'\n      caBundle: ${CRT}\n\
-              \    admissionReviewVersions: [\"v1\"]\nEOF\ncat << EOF > /tmp/mutating-webhook-configuration.yaml\
+              \    admissionReviewVersions: [\"v1\"]\n  - name: sgshardedclusters.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\", \"DELETE\"]\n        apiGroups: [\"stackgres.io\"]\n \
+              \       apiVersions: [\"*\"]\n        resources: [\"sgshardedclusters\"\
+              ]\n    failurePolicy: Fail\n    clientConfig:\n      service:\n    \
+              \    namespace: syn-stackgres-operator\n        name: stackgres-operator\n\
+              \        path: '/stackgres/validation/sgshardedcluster'\n      caBundle:\
+              \ ${CRT}\n    admissionReviewVersions: [\"v1\"]\nEOF\ncat << EOF > /tmp/mutating-webhook-configuration.yaml\
               \            \napiVersion: admissionregistration.k8s.io/v1\nkind: MutatingWebhookConfiguration\n\
               metadata:\n  name: stackgres-operator\n  namespace: syn-stackgres-operator\n\
               \  annotations:\n    meta.helm.sh/release-name: stackgres-operator\n\
@@ -181,6 +188,13 @@ spec:
               \        resources: [\"sgscripts\"]\n    failurePolicy: Fail\n    clientConfig:\n\
               \      service:\n        namespace: syn-stackgres-operator\n       \
               \ name: stackgres-operator\n        path: '/stackgres/mutation/sgscript'\n\
+              \      caBundle: ${CRT}\n    admissionReviewVersions: [\"v1\"]\n  -\
+              \ name: sgshardedclusters.stackgres-operator.syn-stackgres-operator\n\
+              \    sideEffects: None\n    rules:\n      - operations: [\"CREATE\"\
+              , \"UPDATE\"]\n        apiGroups: [\"stackgres.io\"]\n        apiVersions:\
+              \ [\"*\"]\n        resources: [\"sgshardedclusters\"]\n    failurePolicy:\
+              \ Fail\n    clientConfig:\n      service:\n        namespace: syn-stackgres-operator\n\
+              \        name: stackgres-operator\n        path: '/stackgres/mutation/sgshardedcluster'\n\
               \      caBundle: ${CRT}\n    admissionReviewVersions: [\"v1\"]\n\nEOF\n\
               \nkubectl apply -f /tmp/validating-webhook-configuration.yaml\nkubectl\
               \ apply -f /tmp/mutating-webhook-configuration.yaml\ncat << EOF > /tmp/csr-web.conf\n\
@@ -209,7 +223,7 @@ spec:
               \ cert-manager.io/inject-ca-from=syn-stackgres-operator/stackgres-operator-cert\n\
               kubectl annotate --overwrite mutatingwebhookconfigurations stackgres-operator\
               \ cert-manager.io/inject-ca-from=syn-stackgres-operator/stackgres-operator-cert\n"
-          image: docker.io/ongres/kubectl:v1.24.3-build-6.16
+          image: quay.io/ongres/kubectl:v1.25.9-build-6.22
           imagePullPolicy: IfNotPresent
           name: create-certificate
       restartPolicy: OnFailure
