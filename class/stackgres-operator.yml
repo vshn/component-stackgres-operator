@@ -37,3 +37,6 @@ parameters:
         - type: jsonnet
           filter: postprocess/remove_disable_reconcile_env.jsonnet
           path: ${_instance}/01_helmchart/stackgres-operator/templates
+        - type: jsonnet
+          filter: postprocess/remove_reset_cert_env.jsonnet
+          path: ${_instance}/01_helmchart/stackgres-operator/templates

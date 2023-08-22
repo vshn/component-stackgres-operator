@@ -25,8 +25,6 @@ spec:
     spec:
       containers:
         - env:
-            - name: RESET_CERTS
-              value: 'true'
             - name: RESTAPI_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -70,7 +68,6 @@ spec:
             initialDelaySeconds: 0
             periodSeconds: 2
             timeoutSeconds: 1
-          securityContext: null
           volumeMounts:
             - mountPath: /etc/operator/certs
               name: web-certs
@@ -107,7 +104,6 @@ spec:
             - containerPort: 9080
               name: http
               protocol: TCP
-          securityContext: null
           volumeMounts:
             - mountPath: /etc/operator/certs
               name: web-certs
@@ -131,7 +127,6 @@ spec:
               name: operator-nginx-etc
               readOnly: false
               subPath: var/run
-      securityContext: null
       serviceAccountName: stackgres-restapi
       volumes:
         - name: web-certs
@@ -147,5 +142,4 @@ spec:
             name: stackgres-restapi-nginx
             optional: false
           name: operator-nginx
-        - emptyDir: {}
-          name: operator-nginx-etc
+        - name: operator-nginx-etc
