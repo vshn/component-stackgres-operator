@@ -27,3 +27,8 @@ parameters:
           # This makes sure we redeploy stackgres if we change the cert config
           cert-config: >
             ${stackgres_operator:helmValues:cert}
+        image:
+          # Use the jvm version of the image instead of the native due to
+          # Bug report - https://gitlab.com/ongresinc/stackgres/-/issues/2452
+          # This is a workaround for Stackgres v1.5.0 due to OOM issues in cluster-controller containers.
+          tag: ${stackgres_operator:charts:stackgres-operator:version}-jvm

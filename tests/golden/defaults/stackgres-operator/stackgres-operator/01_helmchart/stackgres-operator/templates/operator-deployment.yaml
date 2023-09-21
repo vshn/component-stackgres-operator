@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   annotations:
     cert-config: |
-      {'certManager': {'autoConfigure': True}}
+      {"certManager":{"autoConfigure":true}}
   labels:
     app: stackgres-operator
     group: stackgres.io
@@ -32,7 +32,7 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
             - name: OPERATOR_IMAGE_VERSION
-              value: 1.5.0
+              value: 1.5.0-jvm
             - name: PROMETHEUS_AUTOBIND
               value: 'true'
             - name: USE_ARBITRARY_USER
@@ -49,7 +49,7 @@ spec:
               value: IfNotPresent
             - name: EXTENSIONS_REPOSITORY_URLS
               value: https://extensions.stackgres.io/postgres/repository
-          image: quay.io/stackgres/operator:1.5.0
+          image: quay.io/stackgres/operator:1.5.0-jvm
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
