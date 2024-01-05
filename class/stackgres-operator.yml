@@ -25,3 +25,9 @@ parameters:
           namespace: ${stackgres_operator:namespace}
           api_versions: "project.openshift.io/v1"
           kube_version: ${stackgres_operator:kubernetesVersion}
+  commodore:
+    postprocess:
+      filters:
+        - type: jsonnet
+          filter: postprocess/fix_null_entries.jsonnet
+          path: ${_instance}/01_helmchart/stackgres-operator/crds
