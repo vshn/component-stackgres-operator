@@ -9,7 +9,7 @@ parameters:
     charts:
       stackgres-operator:
         source: "https://stackgres.io/downloads/stackgres-k8s/stackgres/helm/"
-        version: "1.5.0"
+        version: "1.7.0"
     kubernetesVersion: "${dynamic_facts:kubernetesVersion:major}.${dynamic_facts:kubernetesVersion:minor}"
 
     images:

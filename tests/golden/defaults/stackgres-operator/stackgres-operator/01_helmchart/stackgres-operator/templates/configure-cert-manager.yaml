@@ -1,0 +1,37 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: stackgres-operator-certs
+  namespace: syn-stackgres-operator
+spec:
+  dnsNames:
+    - stackgres-operator
+    - stackgres-operator.syn-stackgres-operator
+    - stackgres-operator.syn-stackgres-operator.svc
+    - stackgres-operator.syn-stackgres-operator.svc.cluster.local
+  duration: 2160h
+  isCA: true
+  issuerRef:
+    group: cert-manager.io
+    kind: Issuer
+    name: stackgres-operator-self-signed-issuer
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  renewBefore: 360h
+  secretName: stackgres-operator-certs
+  subject:
+    organizations:
+      - OnGres
+  usages:
+    - server auth
+    - client auth
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: stackgres-operator-self-signed-issuer
+  namespace: syn-stackgres-operator
+spec:
+  selfSigned: {}

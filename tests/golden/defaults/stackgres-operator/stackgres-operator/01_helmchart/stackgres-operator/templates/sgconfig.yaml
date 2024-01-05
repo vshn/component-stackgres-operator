@@ -1,0 +1,130 @@
+apiVersion: stackgres.io/v1
+kind: SGConfig
+metadata:
+  name: stackgres-operator
+  namespace: syn-stackgres-operator
+spec:
+  adminui:
+    image:
+      name: stackgres/admin-ui
+      pullPolicy: IfNotPresent
+      tag: 1.7.0
+    resources: {}
+    service:
+      exposeHTTP: false
+      type: ClusterIP
+  authentication:
+    createAdminSecret: true
+    type: jwt
+    user: admin
+  cert:
+    autoapprove: true
+    certDuration: 730
+    certManager:
+      autoConfigure: true
+      duration: 2160h
+      encoding: PKCS1
+      renewBefore: 360h
+      size: 2048
+    createForOperator: true
+    createForWebApi: true
+    regenerateCert: true
+    regenerateWebCert: true
+    regenerateWebRsa: true
+  containerRegistry: quay.io
+  deploy:
+    operator: true
+    restapi: true
+  developer:
+    allowPullExtensionsFromImageRepository: false
+    disableArbitraryUser: false
+    enableJvmDebug: false
+    enableJvmDebugSuspend: false
+    patches:
+      adminui:
+        volumeMounts: []
+        volumes: []
+      clusterController:
+        volumeMounts: []
+        volumes: []
+      distributedlogsController:
+        volumeMounts: []
+        volumes: []
+      jobs:
+        volumeMounts: []
+        volumes: []
+      operator:
+        volumeMounts: []
+        volumes: []
+      restapi:
+        volumeMounts: []
+        volumes: []
+    showDebug: false
+    showStackTraces: false
+  extensions:
+    cache:
+      enabled: false
+      persistentVolume:
+        size: 1Gi
+      preloadedExtensions:
+        - x86_64/linux/timescaledb-1\.7\.4-pg12
+    repositoryUrls:
+      - https://extensions.stackgres.io/postgres/repository
+  grafana:
+    autoEmbed: false
+    datasourceName: Prometheus
+    password: prom-operator
+    schema: http
+    user: admin
+  imagePullPolicy: IfNotPresent
+  jobs:
+    affinity: {}
+    annotations: {}
+    image:
+      name: stackgres/jobs
+      pullPolicy: IfNotPresent
+      tag: 1.7.0
+    nodeSelector: {}
+    resources: {}
+    tolerations: []
+  operator:
+    affinity: {}
+    annotations:
+      cert-config: |
+        {"certManager":{"autoConfigure":true}}
+    image:
+      name: stackgres/operator
+      pullPolicy: IfNotPresent
+      tag: 1.7.0
+    nodeSelector: {}
+    resources: {}
+    service:
+      annotations: {}
+    serviceAccount:
+      annotations: {}
+      repoCredentials: []
+    tolerations: []
+  prometheus:
+    allowAutobind: true
+  rbac:
+    create: true
+  restapi:
+    affinity: {}
+    annotations: {}
+    image:
+      name: stackgres/restapi
+      pullPolicy: IfNotPresent
+      tag: 1.7.0
+    name: stackgres-restapi
+    nodeSelector: {}
+    resources: {}
+    service:
+      annotations: {}
+    serviceAccount:
+      annotations: {}
+      repoCredentials: []
+    tolerations: []
+  serviceAccount:
+    annotations: {}
+    create: true
+    repoCredentials: []

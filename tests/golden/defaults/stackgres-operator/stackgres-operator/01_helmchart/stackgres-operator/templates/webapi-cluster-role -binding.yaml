@@ -5,14 +5,13 @@ metadata:
     meta.helm.sh/release-name: stackgres-operator
     meta.helm.sh/release-namespace: syn-stackgres-operator
   labels:
-    api.stackgres.io/auth: rolebinding
     app.kubernetes.io/managed-by: Helm
-  name: stackgres-restapi-admin
-  namespace: syn-stackgres-operator
+  name: stackgres-restapi
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-admin
+  name: stackgres-restapi
 subjects:
-  - kind: User
-    name: admin
+  - kind: ServiceAccount
+    name: stackgres-restapi
+    namespace: syn-stackgres-operator

@@ -3,11 +3,11 @@ kind: Deployment
 metadata:
   annotations:
     cert-config: |
-      {'certManager': {'autoConfigure': True}}
+      {"certManager":{"autoConfigure":true}}
   labels:
     app: stackgres-operator
     group: stackgres.io
-    version: 1.5.0
+    version: 1.7.0
   name: stackgres-operator
   namespace: syn-stackgres-operator
 spec:
@@ -32,24 +32,38 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
             - name: OPERATOR_IMAGE_VERSION
-              value: 1.5.0
+              value: 1.7.0
+            - name: DISABLE_RECONCILIATION
+              value: 'false'
+            - name: INSTALL_CRDS
+              value: 'true'
+            - name: INSTALL_WEBHOOKS
+              value: 'true'
             - name: PROMETHEUS_AUTOBIND
               value: 'true'
             - name: USE_ARBITRARY_USER
               value: 'true'
+            - name: OPERATOR_SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.serviceAccountName
+            - name: OPERATOR_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
             - name: OPERATOR_IP
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
-            - name: AUTHENTICATION_SECRET_NAME
-              value: stackgres-restapi
             - name: SG_CONTAINER_REGISTRY
               value: quay.io
             - name: SG_IMAGE_PULL_POLICY
               value: IfNotPresent
             - name: EXTENSIONS_REPOSITORY_URLS
               value: https://extensions.stackgres.io/postgres/repository
-          image: quay.io/stackgres/operator:1.5.0
+          image: quay.io/stackgres/operator:1.7.0
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
@@ -79,9 +93,10 @@ spec:
             - mountPath: /etc/operator/certs
               name: operator-certs
               readOnly: true
+      securityContext: null
       serviceAccountName: stackgres-operator
       volumes:
         - name: operator-certs
           secret:
-            optional: false
+            optional: true
             secretName: stackgres-operator-certs
