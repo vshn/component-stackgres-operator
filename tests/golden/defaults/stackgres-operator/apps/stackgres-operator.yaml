@@ -1,0 +1,17 @@
+spec:
+  ignoreDifferences:
+    - group: apps
+      jsonPointers:
+        - /spec/replicas
+      kind: Deployment
+    - group: admissionregistration.k8s.io
+      jqPathExpression:
+        - .webhooks[]?.clientConfig.caBundle
+      kind: ValidatingWebhookConfiguration
+    - group: admissionregistration.k8s.io
+      jqPathExpression:
+        - .webhooks[]?.clientConfig.caBundle
+      kind: MutatingWebhookConfiguration
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
