@@ -34,6 +34,22 @@ local app = argocd.App(instance, params.namespace) +
                       '.webhooks[]?.clientConfig.caBundle',
                     ],
                   },
+                  {
+                    group: 'cert-manager.io/v1',
+                    kind: 'Certificate',
+                    jsonPointers: [
+                      '/spec/duration',
+                      '/spec/renewBefore',
+                    ],
+                  },
+                  // yq -p yaml -o json tests/golden/defaults/stackgres-operator/stackgres-operator/01_helmchart/stackgres-operator/crds/SGDbOps.yaml | jq '.. | select(.nullable?)'
+                  {
+                    group: 'apiextensions.k8s.io/v1',
+                    kind: 'CustomResourceDefinition',
+                    jqPathExpression: [
+                      '.. | select(.nullable?)',
+                    ],
+                  },
                 ],
               },
             };
