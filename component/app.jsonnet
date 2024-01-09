@@ -35,7 +35,7 @@ local app = argocd.App(instance, params.namespace) +
                     ],
                   },
                   {
-                    group: 'cert-manager.io/v1',
+                    group: 'cert-manager.io',
                     kind: 'Certificate',
                     jsonPointers: [
                       '/spec/duration',
@@ -44,7 +44,7 @@ local app = argocd.App(instance, params.namespace) +
                   },
                   // yq -p yaml -o json tests/golden/defaults/stackgres-operator/stackgres-operator/01_helmchart/stackgres-operator/crds/SGDbOps.yaml | jq '.. | select(.nullable?)'
                   {
-                    group: 'apiextensions.k8s.io/v1',
+                    group: 'apiextensions.k8s.io',
                     kind: 'CustomResourceDefinition',
                     jqPathExpression: [
                       '.. | select(.nullable?)',
