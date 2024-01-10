@@ -5,11 +5,11 @@ spec:
         - /spec/replicas
       kind: Deployment
     - group: admissionregistration.k8s.io
-      jqPathExpression:
+      jqPathExpressions:
         - .webhooks[]?.clientConfig.caBundle
       kind: ValidatingWebhookConfiguration
     - group: admissionregistration.k8s.io
-      jqPathExpression:
+      jqPathExpressions:
         - .webhooks[]?.clientConfig.caBundle
       kind: MutatingWebhookConfiguration
     - group: cert-manager.io
@@ -17,10 +17,15 @@ spec:
         - /spec/duration
         - /spec/renewBefore
       kind: Certificate
+    - group: stackgres.io
+      jsonPointers:
+        - /spec/rbac
+      kind: SGConfig
     - group: apiextensions.k8s.io
-      jqPathExpression:
-        - .. | select(.nullable?)
+      jqPathExpressions:
+        - .spec.versions[]?.schema.openAPIV3Schema.properties.status.properties.benchmark.properties.pgbench
       kind: CustomResourceDefinition
+      name: sgdbops.stackgres.io
   syncPolicy:
     syncOptions:
       - ServerSideApply=true

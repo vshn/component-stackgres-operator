@@ -23,14 +23,14 @@ local app = argocd.App(instance, params.namespace) +
                   {
                     group: 'admissionregistration.k8s.io',
                     kind: 'ValidatingWebhookConfiguration',
-                    jqPathExpression: [
+                    jqPathExpressions: [
                       '.webhooks[]?.clientConfig.caBundle',
                     ],
                   },
                   {
                     group: 'admissionregistration.k8s.io',
                     kind: 'MutatingWebhookConfiguration',
-                    jqPathExpression: [
+                    jqPathExpressions: [
                       '.webhooks[]?.clientConfig.caBundle',
                     ],
                   },
@@ -42,12 +42,20 @@ local app = argocd.App(instance, params.namespace) +
                       '/spec/renewBefore',
                     ],
                   },
-                  // yq -p yaml -o json tests/golden/defaults/stackgres-operator/stackgres-operator/01_helmchart/stackgres-operator/crds/SGDbOps.yaml | jq '.. | select(.nullable?)'
+                  {
+                    group: 'stackgres.io',
+                    kind: 'SGConfig',
+                    jsonPointers: [
+                      '/spec/rbac',
+                    ],
+                  },
+                  // catching "nullable": "false"
                   {
                     group: 'apiextensions.k8s.io',
                     kind: 'CustomResourceDefinition',
-                    jqPathExpression: [
-                      '.. | select(.nullable?)',
+                    name: 'sgdbops.stackgres.io',
+                    jqPathExpressions: [
+                      '.spec.versions[]?.schema.openAPIV3Schema.properties.status.properties.benchmark.properties.pgbench',
                     ],
                   },
                 ],
