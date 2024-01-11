@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pw=$(kubectl -n "$NAMESPACE" get secret stackgres-restapi -o jsonpath="{.data.password}")
+pw=$(kubectl -n "$NAMESPACE" get secret stackgres-restapi-admin -o jsonpath="{.data.password}")
 if [ -z "$pw" ]
 then
   echo "setting password"
@@ -9,7 +9,7 @@ then
   pwSha64=$(echo -n "$USER""$pw" | sha256sum | awk -F' ' '{printf($1)}' | base64 -w0)
 
   patch=$(printf "{\"data\": {\"clearPassword\": \"%s\",\"password\":\"%s\"}}" "$pw64" "$pwSha64")
-  kubectl -n "$NAMESPACE" patch secret stackgres-restapi --patch "$patch"
+  kubectl -n "$NAMESPACE" patch secret stackgres-restapi-admin --patch "$patch"
 else
   echo "password already set"
 fi
