@@ -1,6 +1,6 @@
 /*
     This Job ensures smooth upgrade of Stackgres from version > 1.5.
-    It solves issues with breaking changes introduced in helm charts, as well as egg-chicken (certs, issuers, secrets) issues during upgrade. 
+    It solves issues with breaking changes introduced in helm charts, as well as egg-chicken (certs, issuers, secrets) issues during upgrade.
 */
 
 local kap = import 'lib/kapitan.libjsonnet';
@@ -30,10 +30,10 @@ local job = kube.Job('') {
               '-cex',
               importstr 'scripts/preCleanCerts.sh',
             ],
-            env +: [
-            {
-              NAMESPACE: params.namespace,
-            },
+            env+: [
+              {
+                NAMESPACE: params.namespace,
+              },
             ],
             image: 'docker.io/bitnami/kubectl:1.24',
             name: 'kubectl',
@@ -47,5 +47,5 @@ local job = kube.Job('') {
 };
 
 {
-  CleanCertsJobName: job,
+  '02_CleanCertsJobName': job,
 }

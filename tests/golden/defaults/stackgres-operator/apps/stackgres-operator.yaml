@@ -1,9 +1,5 @@
 spec:
   ignoreDifferences:
-    - group: apps
-      jsonPointers:
-        - /spec/replicas
-      kind: Deployment
     - group: admissionregistration.k8s.io
       jqPathExpressions:
         - .webhooks[]?.clientConfig.caBundle

@@ -14,6 +14,7 @@ parameters:
       - input_paths:
           - ${_base_directory}/component/main.jsonnet
           - ${_base_directory}/component/pre.jsonnet
+          - ${_base_directory}/component/scriptsPermissions.jsonnet
         input_type: jsonnet
         output_path: stackgres-operator/
       - output_path: stackgres-operator/01_helmchart

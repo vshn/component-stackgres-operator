@@ -14,13 +14,6 @@ local app = argocd.App(instance, params.namespace) +
                 },
                 ignoreDifferences+: [
                   {
-                    group: 'apps',
-                    kind: 'Deployment',
-                    jsonPointers: [
-                      '/spec/replicas',
-                    ],
-                  },
-                  {
                     group: 'admissionregistration.k8s.io',
                     kind: 'ValidatingWebhookConfiguration',
                     jqPathExpressions: [

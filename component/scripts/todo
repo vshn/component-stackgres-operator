@@ -1,6 +1,0 @@
-argo PreSync jobs to be created to clean:
-
-- delete cluster roles *-init
-- delete certificates, issuer, secrets 
-
-- add secret permission to ClusterRoleBinding
