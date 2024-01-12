@@ -41,7 +41,7 @@ local job = kube.Job('') {
           },
         ],
         restartPolicy: 'OnFailure',
-        serviceAccountName: 'cluster-admin',
+        serviceAccountName: 'stackgres-operator-init',
       },
     },
   },
