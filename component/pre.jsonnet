@@ -10,7 +10,7 @@ local params = inv.parameters.stackgres_operator;
 local instance = inv.parameters._instance;
 
 
-local CleanCertsJobName = 'cleanCertificatesJob';
+local CleanCertsJobName = 'clean-certificates-job';
 
 local job = kube.Job('') {
   metadata: {
