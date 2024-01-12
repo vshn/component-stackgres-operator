@@ -26,7 +26,7 @@ local role = kube.Role(rolename) {
     },
     {
 
-      apiGroups: [ '' ],
+      apiGroups: [ 'rbac.authorization.k8s.io' ],
       resources: [ 'clusterrolebindings' ],
       verbs: [ 'delete' ],
     },

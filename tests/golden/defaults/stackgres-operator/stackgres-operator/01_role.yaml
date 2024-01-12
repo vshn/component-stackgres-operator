@@ -19,7 +19,7 @@ rules:
       - update
       - delete
   - apiGroups:
-      - ''
+      - rbac.authorization.k8s.io
     resources:
       - clusterrolebindings
     verbs:
