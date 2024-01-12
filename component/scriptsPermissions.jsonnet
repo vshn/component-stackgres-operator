@@ -12,7 +12,22 @@ local instance = inv.parameters._instance;
 
 local rolename = 'stackgres-init-additional-permissions';
 
-local role = kube.ClusterRole(rolename) {
+local clusterRole = kube.ClusterRole(rolename) {
+  metadata+: {
+    annotations: {
+      'argocd.argoproj.io/hook': 'PreSync',
+    },
+  },
+  rules: [
+    {
+      apiGroups: [ 'rbac.authorization.k8s.io' ],
+      resources: [ 'clusterrolebindings' ],
+      verbs: [ 'delete', 'get', 'list', 'watch' ],
+    },
+  ],
+};
+
+local role = kube.Role(rolename) {
   metadata+: {
     annotations: {
       'argocd.argoproj.io/hook': 'PreSync',
@@ -25,13 +40,6 @@ local role = kube.ClusterRole(rolename) {
       verbs: [ 'get', 'list', 'watch', 'create', 'update', 'delete' ],
     },
     {
-
-      apiGroups: [ 'rbac.authorization.k8s.io' ],
-      resources: [ 'clusterrolebindings' ],
-      verbs: [ 'delete' ],
-    },
-    {
-
       apiGroups: [ 'cert-manager.io' ],
       resources: [ 'certificates', 'issuers' ],
       verbs: [ 'delete', 'get', 'list' ],
@@ -39,7 +47,7 @@ local role = kube.ClusterRole(rolename) {
   ],
 };
 
-local roleBinding = kube.ClusterRoleBinding(rolename + '-rolebinding') {
+local clusterRoleBinding = kube.ClusterRoleBinding(rolename) {
   metadata+: {
     annotations: {
       'argocd.argoproj.io/hook': 'PreSync',
@@ -58,7 +66,31 @@ local roleBinding = kube.ClusterRoleBinding(rolename + '-rolebinding') {
     },
   ],
 };
+
+local rolebinding = kube.RoleBinding(rolename) {
+  metadata+: {
+    annotations: {
+      'argocd.argoproj.io/hook': 'PreSync',
+    },
+  },
+  roleRef: {
+    kind: 'Role',
+    name: rolename,
+    apiGroup: 'rbac.authorization.k8s.io',
+  },
+  subjects: [
+    {
+      kind: 'ServiceAccount',
+      name: 'stackgres-operator-init',
+      namespace: params.namespace,
+    },
+  ],
+};
+
+
 {
   '01_role': role,
-  '01_rolebinding': roleBinding,
+  '01_clusterRole': clusterRole,
+  '01_rolebinding': rolebinding,
+  '01_clusterRoleBinding': clusterRoleBinding,
 }
