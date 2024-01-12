@@ -23,7 +23,8 @@ spec:
 
               kubectl -n "$NAMESPACE" delete --ignore-not-found=true issuers.cert-manager.io stackgres-operator-ca-issuer stackgres-operator-self-signed-issuer
           env:
-            - NAMESPACE: syn-stackgres-operator
+            - name: NAMESPACE
+              value: syn-stackgres-operator
           image: docker.io/bitnami/kubectl:1.24
           name: kubectl
       restartPolicy: OnFailure

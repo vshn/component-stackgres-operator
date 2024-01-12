@@ -32,7 +32,8 @@ local job = kube.Job('') {
             ],
             env+: [
               {
-                NAMESPACE: params.namespace,
+                name: 'NAMESPACE',
+                value: params.namespace,
               },
             ],
             image: 'docker.io/bitnami/kubectl:1.24',
