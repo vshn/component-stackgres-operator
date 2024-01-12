@@ -1,5 +1,5 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   annotations:
     argocd.argoproj.io/hook: PreSync
@@ -31,3 +31,5 @@ rules:
       - issuers
     verbs:
       - delete
+      - get
+      - list

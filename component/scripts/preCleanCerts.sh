@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#kubectl delete --ignore-not-found=true clusterrolebindings.rbac.authorization.k8s.io stackgres-operator-init
+kubectl delete --ignore-not-found=true clusterrolebindings.rbac.authorization.k8s.io stackgres-operator-init
 
 kubectl -n "$NAMESPACE" delete --ignore-not-found=true certs --all
 

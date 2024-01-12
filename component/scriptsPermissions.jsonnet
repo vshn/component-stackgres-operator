@@ -12,7 +12,7 @@ local instance = inv.parameters._instance;
 
 local rolename = 'stackgres-init-additional-permissions';
 
-local role = kube.Role(rolename) {
+local role = kube.ClusterRole(rolename) {
   metadata+: {
     annotations: {
       'argocd.argoproj.io/hook': 'PreSync',
@@ -34,19 +34,19 @@ local role = kube.Role(rolename) {
 
       apiGroups: [ 'cert-manager.io' ],
       resources: [ 'certificates', 'issuers' ],
-      verbs: [ 'delete' ],
+      verbs: [ 'delete', 'get', 'list' ],
     },
   ],
 };
 
-local roleBinding = kube.RoleBinding(rolename + '-rolebinding') {
+local roleBinding = kube.ClusterRoleBinding(rolename + '-rolebinding') {
   metadata+: {
     annotations: {
       'argocd.argoproj.io/hook': 'PreSync',
     },
   },
   roleRef: {
-    kind: 'Role',
+    kind: 'ClusterRole',
     name: rolename,
     apiGroup: 'rbac.authorization.k8s.io',
   },
@@ -54,6 +54,7 @@ local roleBinding = kube.RoleBinding(rolename + '-rolebinding') {
     {
       kind: 'ServiceAccount',
       name: 'stackgres-operator-init',
+      namespace: params.namespace,
     },
   ],
 };
