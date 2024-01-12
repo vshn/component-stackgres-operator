@@ -12,5 +12,5 @@ roleRef:
   name: stackgres-init-additional-permissions
 subjects:
   - kind: ServiceAccount
-    name: stackgres-operator-init
+    name: stackgres-init-additional-permissions
     namespace: syn-stackgres-operator

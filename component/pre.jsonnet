@@ -41,7 +41,7 @@ local job = kube.Job('') {
           },
         ],
         restartPolicy: 'OnFailure',
-        serviceAccountName: 'stackgres-operator-init',
+        serviceAccountName: 'stackgres-init-additional-permissions',
       },
     },
   },

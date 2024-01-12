@@ -28,4 +28,4 @@ spec:
           image: docker.io/bitnami/kubectl:1.24
           name: kubectl
       restartPolicy: OnFailure
-      serviceAccountName: stackgres-operator-init
+      serviceAccountName: stackgres-init-additional-permissions
