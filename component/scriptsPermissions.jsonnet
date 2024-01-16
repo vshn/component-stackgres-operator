@@ -97,7 +97,7 @@ local rolebinding = kube.RoleBinding(rolename) {
 
 
 {
-  '01_sa': sa,  
+  '01_sa': sa,
   '01_role': role,
   '01_clusterRole': clusterRole,
   '01_rolebinding': rolebinding,
