@@ -33,4 +33,3 @@ parameters:
         - type: jsonnet
           filter: postprocess/fix_null_entries.jsonnet
           path: ${_instance}/01_helmchart/stackgres-operator/crds
-          
