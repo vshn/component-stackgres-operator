@@ -49,7 +49,7 @@ local role = kube.Role(rolename) {
     },
     {
       apiGroups: [ 'apps' ],
-      resources: [ 'deployments', "replicasets", "pods" ],
+      resources: [ 'deployments', 'replicasets', 'pods' ],
       verbs: [ 'get', 'list', 'watch', 'create', 'update', 'patch', 'delete' ],
     },
     {
