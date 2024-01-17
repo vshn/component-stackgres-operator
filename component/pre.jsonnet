@@ -36,7 +36,7 @@ local job = kube.Job('') {
                 value: params.namespace,
               },
             ],
-            image: 'quay.io/appuio/oc:v4.14',
+            image: params.images.registry + '/appuio/oc:v4.14',
             name: 'kubectl',
           },
         ],
