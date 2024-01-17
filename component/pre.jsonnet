@@ -42,6 +42,7 @@ local job = kube.Job('') {
         ],
         restartPolicy: 'OnFailure',
         serviceAccountName: 'stackgres-init-additional-permissions',
+        ttlSecondsAfterFinished: 5,
       },
     },
   },

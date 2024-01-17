@@ -76,6 +76,7 @@ local setRestAPIPwJob = kube.Job('stackgres-restapi-set-password') {
         ],
         restartPolicy: 'OnFailure',
         serviceAccountName: 'stackgres-operator-init',
+        ttlSecondsAfterFinished: 5,
       },
     },
   },
