@@ -22,10 +22,14 @@ spec:
               kubectl -n "$NAMESPACE" delete --ignore-not-found=true secrets stackgres-operator-certs stackgres-operator-web-certs
 
               kubectl -n "$NAMESPACE" delete --ignore-not-found=true issuers.cert-manager.io stackgres-operator-ca-issuer stackgres-operator-self-signed-issuer
+
+              kubectl -n "$NAMESPACE" rollout restart deployment stackgres-operator
+
+              kubectl -n "$NAMESPACE" rollout restart deployment stackgres-restapi
           env:
             - name: NAMESPACE
               value: syn-stackgres-operator
-          image: docker.io/bitnami/kubectl:1.24
+          image: quay.io/appuio/oc:v4.14
           name: kubectl
       restartPolicy: OnFailure
       serviceAccountName: stackgres-init-additional-permissions
