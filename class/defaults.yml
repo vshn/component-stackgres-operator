@@ -24,6 +24,17 @@ parameters:
           autoConfigure: true
       operator:
         annotations:
+          version:
+            ${stackgres_operator:charts:stackgres-operator:version}
           # This makes sure we redeploy stackgres if we change the cert config
           cert-config: >
             ${stackgres_operator:helmValues:cert}
+      serviceAccount:
+        annotations:
+            version:
+              ${stackgres_operator:charts:stackgres-operator:version}
+      restapi:
+        annotations:
+            version:
+              ${stackgres_operator:charts:stackgres-operator:version}
+      

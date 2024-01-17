@@ -92,6 +92,7 @@ spec:
     annotations:
       cert-config: |
         {"certManager":{"autoConfigure":true}}
+      version: 1.7.0
     image:
       name: stackgres/operator
       pullPolicy: IfNotPresent
@@ -110,7 +111,8 @@ spec:
     create: true
   restapi:
     affinity: {}
-    annotations: {}
+    annotations:
+      version: 1.7.0
     image:
       name: stackgres/restapi
       pullPolicy: IfNotPresent
@@ -125,6 +127,7 @@ spec:
       repoCredentials: []
     tolerations: []
   serviceAccount:
-    annotations: {}
+    annotations:
+      version: 1.7.0
     create: true
     repoCredentials: []

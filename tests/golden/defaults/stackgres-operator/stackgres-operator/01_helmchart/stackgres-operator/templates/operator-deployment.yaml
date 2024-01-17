@@ -4,6 +4,7 @@ metadata:
   annotations:
     cert-config: |
       {"certManager":{"autoConfigure":true}}
+    version: 1.7.0
   labels:
     app: stackgres-operator
     group: stackgres.io
