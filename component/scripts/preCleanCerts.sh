@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-kubectl delete --ignore-not-found=true clusterrolebindings.rbac.authorization.k8s.io stackgres-operator-init
+kubectl delete --ignore-not-found=true clusterrolebindings.rbac.authorization.k8s.io stackgres-operator-init stackgres-restapi-admin
 # deleting webhook because they use legacy certs
 kubectl delete mutatingwebhookconfigurations.admissionregistration.k8s.io stackgres-operator
 
