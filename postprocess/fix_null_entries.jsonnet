@@ -1,19 +1,7 @@
 local com = import 'lib/commodore.libjsonnet';
 
 local crd_files = [
-  'SGBackup',
-  'SGCluster',
   'SGConfig',
-  'SGDbOps',
-  'SGDistributedLogs',
-  'SGInstanceProfile',
-  'SGObjectStorage',
-  'SGPoolingConfig',
-  'SGPostgresConfig',
-  'SGScript',
-  'SGShardedBackup',
-  'SGShardedCluster',
-  'SGShardedDbOps',
 ];
 
 local crds = [
