@@ -8,7 +8,7 @@ spec:
     image:
       name: stackgres/admin-ui
       pullPolicy: IfNotPresent
-      tag: 1.6.0
+      tag: 1.7.0
     service:
       exposeHTTP: false
       type: ClusterIP
@@ -61,7 +61,7 @@ spec:
     image:
       name: stackgres/jobs
       pullPolicy: IfNotPresent
-      tag: 1.6.0
+      tag: 1.7.0
   operator:
     annotations:
       cert-config: |
@@ -69,7 +69,7 @@ spec:
     image:
       name: stackgres/operator
       pullPolicy: IfNotPresent
-      tag: 1.6.0
+      tag: 1.7.0
   prometheus:
     allowAutobind: true
   rbac:
@@ -78,7 +78,7 @@ spec:
     image:
       name: stackgres/restapi
       pullPolicy: IfNotPresent
-      tag: 1.6.0
+      tag: 1.7.0
     name: stackgres-restapi
   serviceAccount:
     create: true

@@ -27,7 +27,6 @@ rules:
       - rolebindings
       - events
       - cronjobs
-      - persistentvolumeclaims
       - jobs
     verbs:
       - get
@@ -61,7 +60,6 @@ rules:
       - sgshardedbackups
       - sgshardeddbops
       - sgconfigs
-      - sgconfigs/status
     verbs:
       - create
       - watch
@@ -73,8 +71,38 @@ rules:
   - apiGroups:
       - stackgres.io
     resources:
+      - sgconfigs/status
       - sgclusters/status
       - sgdistributedlogs/status
+      - sgclusters/finalizers
+      - sgpgconfigs/finalizers
+      - sginstanceprofiles/finalizers
+      - sgpoolconfigs/finalizers
+      - sgbackupconfigs/finalizers
+      - sgbackups/finalizers
+      - sgdistributedlogs/finalizers
+      - sgdbops/finalizers
+      - sgobjectstorages/finalizers
+      - sgscripts/finalizers
+      - sgshardedclusters/finalizers
+      - sgshardedbackups/finalizers
+      - sgshardeddbops/finalizers
+      - sgconfigs/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - ''
+      - apps
+      - batch
+    resources:
+      - statefulsets/finalizers
+      - persistentvolumeclaims/finalizers
+      - deployments/finalizers
+      - services/finalizers
+      - endpoints/finalizers
+      - cronjobs/finalizers
+      - jobs/finalizers
+      - pods/finalizers
     verbs:
       - update
   - apiGroups:
@@ -104,6 +132,15 @@ rules:
       - customresourcedefinitions
     verbs:
       - list
+  - apiGroups:
+      - snapshot.storage.k8s.io
+    resources:
+      - volumesnapshots
+    verbs:
+      - list
+      - get
+      - watch
+      - create
   - apiGroups:
       - apiextensions.k8s.io
     resourceNames:
@@ -176,3 +213,4 @@ rules:
       - customresourcedefinitions
     verbs:
       - patch
+      - update

@@ -15,9 +15,8 @@ local rolename = 'stackgres-init-additional-permissions';
 local sa = kube.ServiceAccount(rolename) {
   metadata+: {
     annotations: {
-      'helm.sh/hook': 'pre-install,pre-upgrade',
-      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
-      'helm.sh/hook-weight': '10',
+      'argocd.argoproj.io/hook': 'PreSync',
+      'argocd.argoproj.io/hook-delete-policy': 'BeforeHookCreation'
     },
   },
 };
@@ -25,9 +24,8 @@ local sa = kube.ServiceAccount(rolename) {
 local clusterRole = kube.ClusterRole(rolename) {
   metadata+: {
     annotations: {
-      'helm.sh/hook': 'pre-install,pre-upgrade',
-      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
-      'helm.sh/hook-weight': '10',
+      'argocd.argoproj.io/hook': 'PreSync',
+      'argocd.argoproj.io/hook-delete-policy': 'BeforeHookCreation'
     },
   },
   rules: [
@@ -46,10 +44,10 @@ local clusterRole = kube.ClusterRole(rolename) {
 
 local role = kube.Role(rolename) {
   metadata+: {
-     annotations: {
-      'helm.sh/hook': 'pre-install,pre-upgrade',
-      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
-      'helm.sh/hook-weight': '10',
+    annotations: {
+      'argocd.argoproj.io/hook': 'PreSync',
+      'argocd.argoproj.io/hook-delete-policy': 'BeforeHookCreation'
+
     },
   },
   rules: [
@@ -73,10 +71,9 @@ local role = kube.Role(rolename) {
 
 local clusterRoleBinding = kube.ClusterRoleBinding(rolename) {
   metadata+: {
-     annotations: {
-      'helm.sh/hook': 'pre-install,pre-upgrade',
-      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
-      'helm.sh/hook-weight': '10',
+    annotations: {
+      'argocd.argoproj.io/hook': 'PreSync',
+      'argocd.argoproj.io/hook-delete-policy': 'BeforeHookCreation'
     },
   },
   roleRef: {
@@ -97,6 +94,7 @@ local rolebinding = kube.RoleBinding(rolename) {
   metadata+: {
     annotations: {
       'argocd.argoproj.io/hook': 'PreSync',
+      'argocd.argoproj.io/hook-delete-policy': 'BeforeHookCreation'
     },
   },
   roleRef: {
@@ -108,6 +106,11 @@ local rolebinding = kube.RoleBinding(rolename) {
     {
       kind: 'ServiceAccount',
       name: rolename,
+      namespace: params.namespace,
+    },
+    {
+      kind: 'ServiceAccount',
+      name: 'stackgres-operator-init',
       namespace: params.namespace,
     },
   ],

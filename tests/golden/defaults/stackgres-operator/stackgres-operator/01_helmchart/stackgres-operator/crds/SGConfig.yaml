@@ -221,23 +221,6 @@ spec:
                       description: When set to `true` the Web Console / REST API certificate
                         will be created.
                       type: boolean
-                    crt:
-                      description: The Operator Webhooks certificate issued by Kubernetes
-                        cluster CA.
-                      type: string
-                    jwtRsaKey:
-                      description: The private RSA key used to generate JWTs used
-                        in REST API authentication.
-                      type: string
-                    jwtRsaPub:
-                      description: The public RSA key used to verify JWTs used in
-                        REST API authentication.
-                      type: string
-                    key:
-                      description: |
-                        The private RSA key used to create the Operator Webhooks certificate issued by the
-                          Kubernetes cluster CA.
-                      type: string
                     regenerateCert:
                       default: true
                       description: |
@@ -263,13 +246,6 @@ spec:
                         The duration in days of the generated certificate for the Web Console / REST API after which it will expire and be regenerated.
                         If not specified it will be set to 730 (2 years) by default.
                       type: integer
-                    webCrt:
-                      description: The Web Console / REST API certificate
-                      type: string
-                    webKey:
-                      description: The private RSA key used to create the Web Console
-                        / REST API certificate
-                      type: string
                     webRsaDuration:
                       description: |
                         The duration in days of the generated RSA key pair for the Web Console / REST API after which it will expire and be regenerated.
@@ -669,6 +645,20 @@ spec:
                       description: Operator Installation Jobs resources. See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#resourcerequirements-v1-core
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
+                    serviceAccount:
+                      description: Section to configure Jobs ServiceAccount
+                      properties:
+                        annotations:
+                          description: Jobs ServiceAccount annotations
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                        repoCredentials:
+                          description: Repositories credentials Secret names
+                          items:
+                            description: Repository credentials Secret name
+                            type: string
+                          type: array
+                      type: object
                     tolerations:
                       description: Operator Installation Jobs tolerations. See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#toleration-v1-core
                       items:

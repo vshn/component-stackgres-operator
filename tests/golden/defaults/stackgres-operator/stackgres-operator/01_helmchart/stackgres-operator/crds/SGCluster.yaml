@@ -76,14 +76,6 @@ spec:
                         - sgObjectStorage: 'backupconf'
                     ```
                   properties:
-                    backupPath:
-                      description: |
-                        **Deprecated**: use instead `.spec.configurations.backups[].path`
-
-                        The path were the backup is stored. If not set this field is filled up by the operator.
-
-                        When provided will indicate were the backups and WAL files will be stored.
-                      type: string
                     backups:
                       description: |
                         List of backups configurations for this SGCluster
@@ -114,6 +106,12 @@ spec:
 
                               If not set, full backups are never performed automatically.
                             type: string
+                          fastVolumeSnapshot:
+                            description: |
+                              If specified SGBackup will create a backup forcing a fast start (by setting parameter `fast` to `true` when calling `pg_backup_start`) that will reduce the time the backups may take at the expense of more IO usage.
+
+                              See also https://www.postgresql.org/docs/current/continuous-archiving.html#BACKUP-LOWLEVEL-BASE-BACKUP
+                            type: boolean
                           path:
                             description: |
                               The path were the backup is stored. If not set this field is filled up by the operator.
@@ -163,6 +161,20 @@ spec:
                               Name of the [SGObjectStorage](https://stackgres.io/doc/latest/reference/crd/sgobjectstorage) to use for the cluster.
 
                               It defines the location in which the the backups will be stored.
+                            type: string
+                          useVolumeSnapshot:
+                            description: |
+                              If specified SGBackup will use VolumeSnapshot to create backups.
+
+                              This functionality still require to store WAL files in an SGObjectStorage but could result in much faster backups and restore of those backups.
+
+                              See also https://kubernetes.io/docs/concepts/storage/volume-snapshots/
+                            type: boolean
+                          volumeSnapshotClass:
+                            description: |
+                              The name of the VolumeSnaphostClass to use to create the VolumeSnapshot for backups.
+
+                              See also https://kubernetes.io/docs/concepts/storage/volume-snapshots/
                             type: string
                         required:
                           - sgObjectStorage
@@ -373,20 +385,46 @@ spec:
                       description: Allow to specify Patroni configuration that will
                         extend the generated one
                       properties:
+                        dynamicConfig:
+                          description: |
+                            Allow to specify Patroni dynamic configuration that will overwrite the generated one. See https://patroni.readthedocs.io/en/latest/dynamic_configuration.html
+
+                            The following configuration fields will be ignored:
+
+                            * synchronous_mode
+                            * synchronous_mode_strict
+                            * failsafe_mode
+                            * postgresql
+                            * standby_cluster
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
                         initialConfig:
                           description: |
-                            Allow to specify Patroni configuration that will overwrite the generated one
+                            Allow to specify Patroni configuration that will overwrite the generated one. See https://patroni.readthedocs.io/en/latest/yaml_configuration.html
+
+                            The following configuration fields will be ignored:
+
+                            * name
+                            * namespace
+                            * log
+                            * bootstrap
+                            * consul
+                            * etcd
+                            * etcdv3
+                            * zookeeper
+                            * exhibitor
+                            * kubernetes
+                            * raft
+                            * postgresql
+                            * restapi
+                            * ctl
+                            * watchdog
+                            * tags
 
                             **This field can only be set on creation.**
                           type: object
                           x-kubernetes-preserve-unknown-fields: true
                       type: object
-                    sgBackupConfig:
-                      description: |
-                        **Deprecated**: use instead `.spec.configurations.backups[].sgObjectStorage`
-
-                        Name of the [SGBackupConfig](https://stackgres.io/doc/latest/reference/crd/sgbackupconfig) to use for the cluster. It defines the backups policy, storage and retention, among others, applied to the cluster. When not set, backup configuration will not be used.
-                      type: string
                     sgPoolingConfig:
                       description: |
                         Name of the [SGPoolingConfig](https://stackgres.io/doc/latest/reference/crd/sgpoolconfig) used for this cluster.

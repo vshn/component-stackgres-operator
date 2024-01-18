@@ -51,9 +51,8 @@ local setRestAPIPwJob = kube.Job('stackgres-restapi-set-password') {
   },
   metadata+: {
     annotations: {
-      'helm.sh/hook': 'post-install,post-upgrade',
-      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
-      'helm.sh/hook-weight': '10',
+      'argocd.argoproj.io/hook': 'PostSync',
+      'argocd.argoproj.io/hook-delete-policy': 'BeforeHookCreation'
     },
     labels: commonLabels,
     namespace: params.namespace,
@@ -76,7 +75,7 @@ local setRestAPIPwJob = kube.Job('stackgres-restapi-set-password') {
           },
         ],
         restartPolicy: 'OnFailure',
-        serviceAccountName: 'stackgres-operator-init',
+        serviceAccountName: 'stackgres-init-additional-permissions',
       },
     },
   },
@@ -92,5 +91,5 @@ local setRestAPIPwJob = kube.Job('stackgres-restapi-set-password') {
     },
   },
   '01_network_policy': networkPolicy,
- //[if pw == '' then '02_set_restAPI_password_job']: setRestAPIPwJob,
+  #[if pw == '' then '02_set_restAPI_password_job']: setRestAPIPwJob,
 }
