@@ -9,7 +9,6 @@ spec:
       name: stackgres/admin-ui
       pullPolicy: IfNotPresent
       tag: 1.6.0
-    resources: {}
     service:
       exposeHTTP: false
       type: ClusterIP
@@ -40,13 +39,6 @@ spec:
     disableArbitraryUser: false
     enableJvmDebug: false
     enableJvmDebugSuspend: false
-    patches:
-      adminui: null
-      clusterController: null
-      distributedlogsController: null
-      jobs: null
-      operator: null
-      restapi: null
     showDebug: false
     showStackTraces: false
   extensions:
@@ -66,17 +58,11 @@ spec:
     user: admin
   imagePullPolicy: IfNotPresent
   jobs:
-    affinity: {}
-    annotations: {}
     image:
       name: stackgres/jobs
       pullPolicy: IfNotPresent
       tag: 1.6.0
-    nodeSelector: {}
-    resources: {}
-    tolerations: []
   operator:
-    affinity: {}
     annotations:
       cert-config: |
         {'certManager': {'autoConfigure': True}}
@@ -84,35 +70,15 @@ spec:
       name: stackgres/operator
       pullPolicy: IfNotPresent
       tag: 1.6.0
-    nodeSelector: {}
-    resources: {}
-    service:
-      annotations: {}
-    serviceAccount:
-      annotations: {}
-      repoCredentials: []
-    tolerations: []
   prometheus:
     allowAutobind: true
   rbac:
     create: true
   restapi:
-    affinity: {}
-    annotations: {}
     image:
       name: stackgres/restapi
       pullPolicy: IfNotPresent
       tag: 1.6.0
     name: stackgres-restapi
-    nodeSelector: {}
-    resources: {}
-    service:
-      annotations: {}
-    serviceAccount:
-      annotations: {}
-      repoCredentials: []
-    tolerations: []
   serviceAccount:
-    annotations: {}
     create: true
-    repoCredentials: []
