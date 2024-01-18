@@ -12,18 +12,21 @@ spec:
           command:
             - /bin/bash
             - -cex
-            - "#!/bin/bash\n\n\nkubectl delete --ignore-not-found=true clusterrolebindings.rbac.authorization.k8s.io\
-              \ stackgres-operator-init\n# deleting webhook because they use legacy\
-              \ certs\nkubectl delete mutatingwebhookconfigurations.admissionregistration.k8s.io\
-              \ stackgres-operator\n\nkubectl delete validatingwebhookconfigurations.admissionregistration.k8s.io\
-              \ stackgres-operator\nkubectl -n \"$NAMESPACE\" delete --ignore-not-found=true\
-              \ certs --all\nkubectl -n \"$NAMESPACE\" delete --ignore-not-found=true\
-              \ secrets stackgres-operator-certs stackgres-operator-web-certs\nkubectl\
-              \ -n \"$NAMESPACE\" delete --ignore-not-found=true issuers.cert-manager.io\
-              \ stackgres-operator-ca-issuer stackgres-operator-self-signed-issuer\n\
-              # at this point we need to reload our deployments \nkubectl -n \"$NAMESPACE\"\
-              \ rollout restart deployment stackgres-operator\nkubectl -n \"$NAMESPACE\"\
-              \ rollout restart deployment stackgres-restapi\n"
+            - |
+              #!/bin/bash
+
+
+              kubectl delete --ignore-not-found=true clusterrolebindings.rbac.authorization.k8s.io stackgres-operator-init
+              # deleting webhook because they use legacy certs
+              kubectl delete mutatingwebhookconfigurations.admissionregistration.k8s.io stackgres-operator
+
+              kubectl delete validatingwebhookconfigurations.admissionregistration.k8s.io stackgres-operator
+              # kubectl -n "$NAMESPACE" delete --ignore-not-found=true certs --all
+              # kubectl -n "$NAMESPACE" delete --ignore-not-found=true secrets stackgres-operator-certs stackgres-operator-web-certs
+              # kubectl -n "$NAMESPACE" delete --ignore-not-found=true issuers.cert-manager.io stackgres-operator-ca-issuer stackgres-operator-self-signed-issuer
+              # at this point we need to reload our deployments
+              kubectl -n "$NAMESPACE" rollout restart deployment stackgres-operator
+              kubectl -n "$NAMESPACE" rollout restart deployment stackgres-restapi
           env:
             - name: NAMESPACE
               value: syn-stackgres-operator
