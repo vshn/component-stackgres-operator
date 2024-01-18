@@ -15,7 +15,9 @@ local rolename = 'stackgres-init-additional-permissions';
 local sa = kube.ServiceAccount(rolename) {
   metadata+: {
     annotations: {
-      'argocd.argoproj.io/hook': 'PreSync',
+      'helm.sh/hook': 'pre-install,pre-upgrade',
+      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
+      'helm.sh/hook-weight': '10',
     },
   },
 };
@@ -23,7 +25,9 @@ local sa = kube.ServiceAccount(rolename) {
 local clusterRole = kube.ClusterRole(rolename) {
   metadata+: {
     annotations: {
-      'argocd.argoproj.io/hook': 'PreSync',
+      'helm.sh/hook': 'pre-install,pre-upgrade',
+      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
+      'helm.sh/hook-weight': '10',
     },
   },
   rules: [
@@ -42,8 +46,10 @@ local clusterRole = kube.ClusterRole(rolename) {
 
 local role = kube.Role(rolename) {
   metadata+: {
-    annotations: {
-      'argocd.argoproj.io/hook': 'PreSync',
+     annotations: {
+      'helm.sh/hook': 'pre-install,pre-upgrade',
+      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
+      'helm.sh/hook-weight': '10',
     },
   },
   rules: [
@@ -67,8 +73,10 @@ local role = kube.Role(rolename) {
 
 local clusterRoleBinding = kube.ClusterRoleBinding(rolename) {
   metadata+: {
-    annotations: {
-      'argocd.argoproj.io/hook': 'PreSync',
+     annotations: {
+      'helm.sh/hook': 'pre-install,pre-upgrade',
+      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
+      'helm.sh/hook-weight': '10',
     },
   },
   roleRef: {

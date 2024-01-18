@@ -92,5 +92,5 @@ local setRestAPIPwJob = kube.Job('stackgres-restapi-set-password') {
     },
   },
   '01_network_policy': networkPolicy,
-  [if pw == '' then '02_set_restAPI_password_job']: setRestAPIPwJob,
+ //[if pw == '' then '02_set_restAPI_password_job']: setRestAPIPwJob,
 }

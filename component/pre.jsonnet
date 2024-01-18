@@ -16,7 +16,9 @@ local job = kube.Job('') {
   metadata: {
     generateName: CleanCertsJobName + '-',
     annotations: {
-      'argocd.argoproj.io/hook': 'PreSync',
+      'helm.sh/hook': 'pre-install,pre-upgrade',
+      'helm.sh/hook-delete-policy': 'before-hook-creation,hook-succeeded',
+      'helm.sh/hook-weight': '10',
     },
   },
   spec: {
