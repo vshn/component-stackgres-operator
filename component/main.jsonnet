@@ -59,6 +59,7 @@ local setRestAPIPwJob = kube.Job('stackgres-restapi-set-password') {
     namespace: params.namespace,
   },
   spec+: {
+    ttlSecondsAfterFinished: 5,
     template: {
       metadata: {
         labels: commonLabels,

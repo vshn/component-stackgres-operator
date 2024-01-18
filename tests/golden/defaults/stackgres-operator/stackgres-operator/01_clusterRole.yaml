@@ -16,3 +16,13 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+      - validatingwebhookconfigurations
+    verbs:
+      - delete
+      - get
+      - list
+      - watch

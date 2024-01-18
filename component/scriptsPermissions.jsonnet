@@ -32,6 +32,11 @@ local clusterRole = kube.ClusterRole(rolename) {
       resources: [ 'clusterrolebindings' ],
       verbs: [ 'delete', 'get', 'list', 'watch' ],
     },
+    {
+      apiGroups: [ 'admissionregistration.k8s.io' ],
+      resources: [ 'mutatingwebhookconfigurations', 'validatingwebhookconfigurations' ],
+      verbs: [ 'delete', 'get', 'list', 'watch' ],
+    },
   ],
 };
 
@@ -49,7 +54,7 @@ local role = kube.Role(rolename) {
     },
     {
       apiGroups: [ 'apps' ],
-      resources: [ 'deployments', "replicasets", "pods" ],
+      resources: [ 'deployments', 'replicasets', 'pods' ],
       verbs: [ 'get', 'list', 'watch', 'create', 'update', 'patch', 'delete' ],
     },
     {

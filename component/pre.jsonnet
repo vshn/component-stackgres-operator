@@ -20,6 +20,7 @@ local job = kube.Job('') {
     },
   },
   spec: {
+    ttlSecondsAfterFinished: 5,
     template: {
       spec: {
         containers: [
@@ -34,6 +35,10 @@ local job = kube.Job('') {
               {
                 name: 'NAMESPACE',
                 value: params.namespace,
+              },
+              {
+                name: 'VERSION',
+                value: params.charts.stackgres_operator.version,
               },
             ],
             image: params.images.registry + '/appuio/oc:v4.14',

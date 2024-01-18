@@ -12,24 +12,25 @@ spec:
           command:
             - /bin/bash
             - -cex
-            - |
-              #!/bin/bash
-
-              kubectl delete --ignore-not-found=true clusterrolebindings.rbac.authorization.k8s.io stackgres-operator-init
-
-              kubectl -n "$NAMESPACE" delete --ignore-not-found=true certs --all
-
-              kubectl -n "$NAMESPACE" delete --ignore-not-found=true secrets stackgres-operator-certs stackgres-operator-web-certs
-
-              kubectl -n "$NAMESPACE" delete --ignore-not-found=true issuers.cert-manager.io stackgres-operator-ca-issuer stackgres-operator-self-signed-issuer
-
-              kubectl -n "$NAMESPACE" rollout restart deployment stackgres-operator
-
-              kubectl -n "$NAMESPACE" rollout restart deployment stackgres-restapi
+            - "#!/bin/bash\n\n\nkubectl delete --ignore-not-found=true clusterrolebindings.rbac.authorization.k8s.io\
+              \ stackgres-operator-init\n# deleting webhook because they use legacy\
+              \ certs\nkubectl delete mutatingwebhookconfigurations.admissionregistration.k8s.io\
+              \ stackgres-operator\n\nkubectl delete validatingwebhookconfigurations.admissionregistration.k8s.io\
+              \ stackgres-operator\nkubectl -n \"$NAMESPACE\" delete --ignore-not-found=true\
+              \ certs --all\nkubectl -n \"$NAMESPACE\" delete --ignore-not-found=true\
+              \ secrets stackgres-operator-certs stackgres-operator-web-certs\nkubectl\
+              \ -n \"$NAMESPACE\" delete --ignore-not-found=true issuers.cert-manager.io\
+              \ stackgres-operator-ca-issuer stackgres-operator-self-signed-issuer\n\
+              # at this point we need to reload our deployments \nkubectl -n \"$NAMESPACE\"\
+              \ rollout restart deployment stackgres-operator\nkubectl -n \"$NAMESPACE\"\
+              \ rollout restart deployment stackgres-restapi\n"
           env:
             - name: NAMESPACE
               value: syn-stackgres-operator
+            - name: VERSION
+              value: 1.7.0
           image: quay.io/appuio/oc:v4.14
           name: kubectl
       restartPolicy: OnFailure
       serviceAccountName: stackgres-init-additional-permissions
+  ttlSecondsAfterFinished: 5
