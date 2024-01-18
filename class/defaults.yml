@@ -5,7 +5,8 @@ parameters:
     namespace: syn-stackgres-operator
     namespaceLabels: {}
     namespaceAnnotations: {}
-
+  
+    version: "1.7.0"
     charts:
       stackgres-operator:
         source: "https://stackgres.io/downloads/stackgres-k8s/stackgres/helm/"
