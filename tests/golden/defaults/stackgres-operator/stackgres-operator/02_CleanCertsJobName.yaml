@@ -31,7 +31,7 @@ spec:
             - name: NAMESPACE
               value: syn-stackgres-operator
             - name: VERSION
-              value: 1.7.0
+              value: 1.6.0
           image: quay.io/appuio/oc:v4.14
           name: kubectl
       restartPolicy: OnFailure

@@ -3,11 +3,11 @@ kind: Deployment
 metadata:
   annotations:
     cert-config: |
-      {"certManager":{"autoConfigure":true}}
+      {'certManager': {'autoConfigure': True}}
   labels:
     app: stackgres-operator
     group: stackgres.io
-    version: 1.7.0
+    version: 1.6.0
   name: stackgres-operator
   namespace: syn-stackgres-operator
 spec:
@@ -32,7 +32,7 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
             - name: OPERATOR_IMAGE_VERSION
-              value: 1.7.0
+              value: 1.6.0
             - name: DISABLE_RECONCILIATION
               value: 'false'
             - name: INSTALL_CRDS
@@ -63,7 +63,7 @@ spec:
               value: IfNotPresent
             - name: EXTENSIONS_REPOSITORY_URLS
               value: https://extensions.stackgres.io/postgres/repository
-          image: quay.io/stackgres/operator:1.7.0
+          image: quay.io/stackgres/operator:1.6.0
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:

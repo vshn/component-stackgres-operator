@@ -8,7 +8,7 @@ spec:
     image:
       name: stackgres/admin-ui
       pullPolicy: IfNotPresent
-      tag: 1.7.0
+      tag: 1.6.0
     resources: {}
     service:
       exposeHTTP: false
@@ -41,24 +41,12 @@ spec:
     enableJvmDebug: false
     enableJvmDebugSuspend: false
     patches:
-      adminui:
-        volumeMounts: []
-        volumes: []
-      clusterController:
-        volumeMounts: []
-        volumes: []
-      distributedlogsController:
-        volumeMounts: []
-        volumes: []
-      jobs:
-        volumeMounts: []
-        volumes: []
-      operator:
-        volumeMounts: []
-        volumes: []
-      restapi:
-        volumeMounts: []
-        volumes: []
+      adminui: null
+      clusterController: null
+      distributedlogsController: null
+      jobs: null
+      operator: null
+      restapi: null
     showDebug: false
     showStackTraces: false
   extensions:
@@ -83,7 +71,7 @@ spec:
     image:
       name: stackgres/jobs
       pullPolicy: IfNotPresent
-      tag: 1.7.0
+      tag: 1.6.0
     nodeSelector: {}
     resources: {}
     tolerations: []
@@ -91,11 +79,11 @@ spec:
     affinity: {}
     annotations:
       cert-config: |
-        {"certManager":{"autoConfigure":true}}
+        {'certManager': {'autoConfigure': True}}
     image:
       name: stackgres/operator
       pullPolicy: IfNotPresent
-      tag: 1.7.0
+      tag: 1.6.0
     nodeSelector: {}
     resources: {}
     service:
@@ -114,7 +102,7 @@ spec:
     image:
       name: stackgres/restapi
       pullPolicy: IfNotPresent
-      tag: 1.7.0
+      tag: 1.6.0
     name: stackgres-restapi
     nodeSelector: {}
     resources: {}
